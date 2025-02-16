@@ -46,7 +46,7 @@ podman or docker: For container runtime (optional).
 make: For using the Makefile.
 Project Structure
 
-Copy
+```
 .
 ├── debian/                  # Debian-specific files
 │   ├── keys/                # GPG keys for package verification
@@ -57,14 +57,15 @@ Copy
 ├── tools.mk                 # Makefile tools and utilities
 ├── Makefile                 # Makefile for building rootfs
 └── README.md                # This file
-Usage
+```
 
-Using the Script (mkimage.sh)
+Usage:
 
 The script is located in the debian/ directory and can be run directly. It accepts several arguments to customize the rootfs build process.
 
 Script Arguments
 
+```
 Argument	Description
 --name=<name>	Name of the rootfs image.
 --release=<release>	Debian release (e.g., buster, bullseye).
@@ -76,3 +77,4 @@ Argument	Description
 --recipes=<scripts>	Comma-separated list of scripts to run during the build process.
 --scripts=<scripts>	Comma-separated list of scripts to run after the build process.
 --help	Display usage information.
+```
