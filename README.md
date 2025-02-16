@@ -1,4 +1,4 @@
-Scripts for building base images:
+Scripts for building Docker base images:
 ```
 Usage: make <\target>
 
