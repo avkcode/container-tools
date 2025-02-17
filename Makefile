@@ -38,6 +38,8 @@ help:
 	@echo "|debian11-graal-slim|"
 	@echo "|debian11-java-slim-maven|"
 	@echo "|debian11-java-slim-gradle|"
+	@echo "|debian11-graal-slim-maven|"
+	@echo "|debian11-graal-slim-gradle|"
 
 #------------------------------------------------------------------------------
 SHELL = /usr/bin/env bash -o pipefail
@@ -140,3 +142,24 @@ debian11-java-slim-gradle:
 			--release=stable \
 			--recipes=$(JAVA_RECIPES)/java_slim.sh,$(JAVA_RECIPES)/gradle.sh \
 			--scripts=$(SCRIPTS)/security-scan.sh
+
+debian11-graal-slim-maven:
+	$(PRINT_HEADER)
+	$(DEBIAN_BUILD_SCRIPT) \
+			--name=$@ \
+			--keyrign=$(DEBIAN_KEYRING) \
+			--variant=container \
+			--release=stable \
+			--recipes=$(JAVA_RECIPES)/graalvm_slim.sh,$(JAVA_RECIPES)/maven.sh \
+			--scripts=$(SCRIPTS)/security-scan.sh
+
+debian11-graal-slim-gradle:
+	$(PRINT_HEADER)
+	$(DEBIAN_BUILD_SCRIPT) \
+			--name=$@ \
+			--keyrign=$(DEBIAN_KEYRING) \
+			--variant=container \
+			--release=stable \
+			--recipes=$(JAVA_RECIPES)/graalvm_slim.sh,$(JAVA_RECIPES)/gradle.sh \
+			--scripts=$(SCRIPTS)/security-scan.sh
+
