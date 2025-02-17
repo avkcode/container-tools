@@ -97,18 +97,136 @@ Example:
 Time elapsed: 83
 ```
 
-Script Arguments
+# Extending
+
+To extend this script and Makefile to create new images, you can follow these steps:
+
+1. Understand the Structure
+
+Makefile: The Makefile contains targets for building different Debian-based images. Each target corresponds to a specific image variant (e.g., debian11, debian11-java, etc.).
+Recipes: The recipes directory contains shell scripts that define the setup for different components (e.g., Java, GraalVM, Maven, Gradle). These scripts are executed during the image build process.
+Scripts: The scripts directory contains additional scripts that are run during the build process, such as security scans.
+2. Add a New Recipe
+
+If you want to add a new image variant, you need to create a new recipe script in the recipes directory. For example, if you want to create an image with Node.js, you would create a new script nodejs.sh in the recipes directory.
+
+Example: recipes/nodejs.sh
+```
+#!/bin/bash
+set -e
+```
+# Install Node.js
+```
+apt-get update
+apt-get install -y curl
+curl -fsSL https://deb.nodesource.com/setup_14.x | bash -
+apt-get install -y nodejs
+```
+# Clean up
+```
+apt-get clean
+rm -rf /var/lib/apt/lists/*
+```
+
+3. Add a New Target in the Makefile
+
+Once you have created the recipe, you need to add a new target in the Makefile to build the image using that recipe.
+
+Example: Add debian11-nodejs Target
 
 ```
-Argument	Description
---name=<name>	Name of the rootfs image.
---release=<release>	Debian release (e.g., buster, bullseye).
---keyring=<keyring>	Path to the GPG keyring for package verification.
---variant=<variant>	Debootstrap variant (e.g., minbase, buildd).
---repo_config=<file>	Path to the repository configuration file.
---debootstrap_packages=<packages>	Comma-separated list of packages to include during debootstrap.
---packages=<packages>	Comma-separated list of additional packages to install in the rootfs.
---recipes=<scripts>	Comma-separated list of scripts to run during the build process.
---scripts=<scripts>	Comma-separated list of scripts to run after the build process.
---help	Display usage information.
+debian11-nodejs:
+    $(PRINT_HEADER)
+    $(DEBIAN_BUILD_SCRIPT) \
+        --name=$@ \
+        --keyrign=$(DEBIAN_KEYRING) \
+        --variant=container \
+        --release=stable \
+        --recipes=$(RECIPES)/nodejs.sh \
+        --scripts=$(SCRIPTS)/security-scan.sh
 ```
+
+4. Update the help Target
+
+Update the help target in the Makefile to include the new image variant in the usage instructions.
+
+Example: Update help Target
+
+```
+help:
+    @echo
+    @echo "Usage: make <target>"
+    @echo
+    @echo " * 'print-%' - print-{VAR} - Print variables"
+    @echo
+    @echo
+    @echo " * 'shellcheck' - Bash scripts linter"
+    @echo
+    @echo " * 'qemu-user-static' - Register binfmt_misc, qemu-user-static"
+    @echo
+    @echo " ============================"
+    @echo "  ** Debian Linux targets ** "
+    @echo " ============================"
+    @echo
+    @echo "|debian11|"
+    @echo "|debian11-java|"
+    @echo "|debian11-java-slim|"
+    @echo "|debian11-corretto|"
+    @echo "|debian11-graal|"
+    @echo "|debian11-graal-slim|"
+    @echo "|debian11-java-slim-maven|"
+    @echo "|debian11-java-slim-gradle|"
+    @echo "|debian11-graal-slim-maven|"
+    @echo "|debian11-graal-slim-gradle|"
+    @echo "|debian11-nodejs|"
+```
+
+5. Build the New Image
+
+You can now build the new image using the make command with the new target.
+
+Example: Build debian11-nodejs Image
+
+```
+make debian11-nodejs
+```
+
+6. Test the New Image
+
+After building the image, you should test it to ensure that it works as expected. You can run the image using Docker and verify that Node.js is installed correctly.
+
+Example: Test debian11-nodejs Image
+
+```
+docker run -it debian11-nodejs node --version
+```
+
+7. Optional: Combine Recipes
+
+If you want to create an image that combines multiple components (e.g., Node.js and Java), you can specify multiple recipes in the --recipes argument.
+
+Example: Combine Node.js and Java Recipes
+
+```
+debian11-nodejs-java:
+    $(PRINT_HEADER)
+    $(DEBIAN_BUILD_SCRIPT) \
+        --name=$@ \
+        --keyrign=$(DEBIAN_KEYRING) \
+        --variant=container \
+        --release=stable \
+        --recipes=$(RECIPES)/nodejs.sh,$(JAVA_RECIPES)/java.sh \
+        --scripts=$(SCRIPTS)/security-scan.sh
+```
+
+8. Optional: Add Additional Scripts
+
+If you need to run additional scripts during the build process (e.g., custom configuration or setup), you can add them to the scripts directory and reference them in the --scripts argument.
+
+Summary
+
+Create a new recipe in the recipes directory for the new component.
+Add a new target in the Makefile to build the image using the new recipe.
+Update the help target to include the new image variant.
+Build and test the new image.
+By following these steps, you can easily extend the script and Makefile to create new images with different components and configurations.
