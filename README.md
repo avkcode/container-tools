@@ -67,6 +67,36 @@ Usage:
 
 The script is located in the debian/ directory and can be run directly. It accepts several arguments to customize the rootfs build process.
 
+```
+[Image was built successfully]
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+Artifact location: debian/dist/debian11-java-slim-maven/debian11-java-slim-maven.tar
+
+Artifact size: 113M
+
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+Image was built successfully!
+Artifact location: debian/dist/debian11-java-slim-maven/debian11-java-slim-maven.tar
+
+To load and run this Docker image, follow these steps:
+
+1. Load the Docker image from the .tar file:
+   cat debian/dist/debian11-java-slim-maven/debian11-java-slim-maven.tar | docker import - debian/dist/debian11-java-slim-maven/debian11-java-slim-maven
+
+2. Verify the image was loaded successfully:
+   docker images
+
+3. Run the Docker container:
+   docker run -it <IMAGE_NAME>
+   Replace <IMAGE_NAME> with the name of the image loaded in step 1.
+
+Example:
+   docker run -it debian/dist/debian11-java-slim-maven/debian11-java-slim-maven
+::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+Time elapsed: 83
+```
+
 Script Arguments
 
 ```
