@@ -1,13 +1,15 @@
 Scripts for building Docker base images:
 ```
-Usage: make <\target>
+make
+
+Usage: make <target>
 
  * 'print-%' - print-{VAR} - Print variables
 
 
  * 'shellcheck' - Bash scripts linter
 
- * 'install-qemu-user-static' - Register binfmt_misc, qemu-user-static
+ * 'qemu-user-static' - Register binfmt_misc, qemu-user-static
 
  ============================
   ** Debian Linux targets **
@@ -21,6 +23,8 @@ Usage: make <\target>
 |debian11-graal-slim|
 |debian11-java-slim-maven|
 |debian11-java-slim-gradle|
+|debian11-graal-slim-maven|
+|debian11-graal-slim-gradle|
 ```
 
 Debian RootFS Builder
