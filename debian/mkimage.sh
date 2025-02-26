@@ -1,32 +1,78 @@
 #!/usr/bin/env bash
 
+# Enable tracing if TRACE environment variable is set
 if [ -n "$TRACE" ]; then
-  export PS4='[\D{%FT%TZ}] ${BASH_SOURCE}:${LINENO}: ${FUNCname[0]:+${FUNCname[0]}(): }'
+  export PS4='[\D{%FT%TZ}] ${BASH_SOURCE}:${LINENO}: ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
   set -o xtrace
 fi
 
+# Exit on error and pipefail
 set -o errexit
 set -o pipefail
 
+# Set non-interactive frontend for Debian packages
 export DEBIAN_FRONTEND=noninteractive
 
+# Get the directory of the script
 scriptdir=$(dirname "${BASH_SOURCE[0]}")
 
+# Function to display usage information
+usage() {
+  cat <<EOF
+Usage: ${0} [options]
+
+Description:
+  This script automates the process of building a minimal Debian-based image.
+  It uses debootstrap to create a chroot environment, installs necessary packages,
+  runs custom scripts, and archives the resulting image.
+
+Options:
+  --name=<name>                  Specify the name of the output image file.
+  --release=<release>            Specify the Debian release (e.g., bullseye, buster).
+  --keyring=<keyring>            Specify the keyring package for debootstrap.
+  --variant=<variant>            Specify the debootstrap variant (e.g., minbase).
+  --repo_config=<repo_config>    Specify the repository configuration file.
+  --debootstrap_packages=<pkgs>  Comma-separated list of packages for debootstrap.
+  --packages=<pkgs>              Comma-separated list of additional packages to install.
+  --recipes=<recipes>            Comma-separated list of installer scripts to run.
+  --scripts=<scripts>            Comma-separated list of test scripts to execute.
+  --help                         Display this help message.
+
+Example:
+  ${0} --name=my-image --release=bullseye --packages=curl,vim --scripts=test.sh
+
+Notes:
+  - Ensure that debootstrap, unzip, and trivy are installed on your system.
+  - The script requires root privileges for certain operations.
+EOF
+  exit 1
+}
+
+# Parse command-line arguments
 OPTIND=1
 while getopts ":-:" optchar; do
   [[ "${optchar}" == "-" ]] || continue
   case "${OPTARG}" in
   name=*)
     name=${OPTARG#*=}
+    if [[ -z "$name" ]]; then
+      die "Missing value for --name"
+    fi
     ;;
   release=*)
     release=${OPTARG#*=}
+    if [[ -z "$release" ]]; then
+      die "Missing value for --release"
+    fi
     ;;
-  keyrign=*)
-    keyrign=${OPTARG#*=}
+  keyring=*)
+    keyring=${OPTARG#*=}
+    if [[ -z "$keyring" ]]; then
+      die "Missing value for --keyring"
+    fi
     ;;
   variant=*)
-  variant=${OPTARG#*=}
+    variant=${OPTARG#*=}
     ;;
   repo_config=*)
     repo_config=${OPTARG#*=}
@@ -36,7 +82,6 @@ while getopts ":-:" optchar; do
     ;;
   packages=*)
     packages=${OPTARG#*=}
-    # Меняем запятую на пробел в массиве
     packages=("${packages//,/ }")
     ;;
   recipes=*)
@@ -49,11 +94,14 @@ while getopts ":-:" optchar; do
     ;;
   help*)
     usage
-  ;;
+    ;;
   *)
-    echo "Unknown arg: '$OPTARG'"
-    echo "Run ${0} —help"
-    usage
+    echo "Unknown argument: '$OPTARG'. Did you mean one of these?"
+    echo "  --name=<value>"
+    echo "  --release=<value>"
+    echo "  --keyring=<value>"
+    echo "Run ${0} --help for more information."
+    exit 1
     ;;
   esac
 done
@@ -61,6 +109,7 @@ shift $((OPTIND - 1))
 
 ############################## FUNCTIONS ##############################
 
+# Check if debootstrap is installed
 if ! command -v debootstrap >/dev/null 2>&1; then
     echo "Error: debootstrap is not installed."
     echo "To install debootstrap, run:"
@@ -68,6 +117,7 @@ if ! command -v debootstrap >/dev/null 2>&1; then
     exit 1
 fi
 
+# Check if unzip is installed
 if ! command -v unzip >/dev/null 2>&1; then
     echo "Error: unzip is not installed."
     echo "To install unzip, run:"
@@ -75,20 +125,21 @@ if ! command -v unzip >/dev/null 2>&1; then
     exit 1
 fi
 
+# Check if trivy is installed
 if ! command -v trivy >/dev/null 2>&1; then
     echo "Error: trivy is not installed."
     echo "Trivy is a security scanner used to detect vulnerabilities, misconfigurations, and secrets."
     echo "To install trivy, follow these steps:"
     echo ""
-    echo "1. For Linux/macOS:"
+    echo "For Linux/macOS:"
     echo "   Download the latest release from https://github.com/aquasecurity/trivy/releases"
     echo "   Example for Linux:"
     echo "   curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin"
     echo ""
-    echo "After installation, verify by running: trivy --version"
     exit 1
 fi
 
+# Function to run commands with error handling
 run() {
   echo >&2 "$(timestamp) RUN $* "
   "${@}"
@@ -100,6 +151,7 @@ run() {
   fi
 }
 
+# Function to print headers
 header() {
   echo
   msg="${1:-}"
@@ -110,23 +162,28 @@ header() {
   echo
 }
 
+# Function to generate a timestamp
 timestamp() {
   date +"[%Y-%m-%d %T] -"
 }
 
+# Function to exit with an error message
 die() {
   echo "ERROR $*" >&2
   exit 1
 }
 
+# Function to print warnings
 warn() {
   echo >&2 "$(timestamp) WARN $*"
 }
 
+# Function to print informational messages
 info() {
   echo >&2 "$(timestamp) INFO $*"
 }
 
+# Function to source all files in a directory
 source-files-in() {
   local dir="$1"
 
@@ -137,16 +194,19 @@ source-files-in() {
   fi
 }
 
+# Function to print array elements
 print-array() {
   printf '%s\n' "${@}"
 }
 
+# Function to print logs
 printlog() {
   printf '\n'
   printf '%s\n' "${*}"
   printf '\n'
 }
 
+# Function to check if required commands are installed
 check-commands() {
   local commands=("${@}")
 
@@ -158,10 +218,12 @@ check-commands() {
   done
 }
 
+# Function to start a timer
 timer-on() {
   start=$(date +%s)
 }
 
+# Function to stop a timer and display elapsed time
 timer-off() {
   end=$(date +%s)
   elapsed=$((end - start))
@@ -169,10 +231,12 @@ timer-off() {
   echo
 }
 
+# Function to get the real path of a file
 frealpath() {
   [[ $1 = /* ]] && echo "$1" || echo "$PWD/${1#./}"
 }
 
+# Function to retry a command
 retry() {
   local tries=$1
   shift
@@ -186,6 +250,7 @@ retry() {
   return 1
 }
 
+# Function to check file checksum
 check_sum() {
   local sum=$1
   local file=$2
@@ -205,6 +270,7 @@ ${sum} ${file}
 EOF
 }
 
+# Function to download a file
 download() {
   local url="$1"
   local output_file="$2"
@@ -224,20 +290,24 @@ download() {
 
 ############################## VARS & CHECKS ##############################
 
+# Check if the OS is Linux
 if [[ "$(uname -s)" != "Linux" ]]; then
   die "GNU/Linux is the only supported OS"
 fi
 
+# Check if the script is run as root
 if [[ "$EUID" != "0" ]]; then
   die "${BASH_SOURCE[0]} requires root privileges"
 fi
 
+# Check if SELinux is enabled and permissive/disabled
 if command -v getenforce; then
   if [[ ! "$(getenforce | grep --extended-regexp "Permissive|Disabled")" ]]; then
-    die "Disable SElinux or create container policy"
+    die "Disable SELinux or create container policy"
   fi
 fi
 
+# Use podman if available, otherwise fall back to docker
 if ! command -v podman; then
   warn "Podman will be used for building images"
   podman=docker
@@ -245,6 +315,7 @@ else
   podman=podman
 fi
 
+# Set up temporary directories
 target="$(mktemp --directory)"
 tmpdir="$(mktemp --directory --tmpdir tmp-XXXXX)"
 debootstrap_dir="$tmpdir"
@@ -253,23 +324,9 @@ dist="$scriptdir"/dist/$name && mkdir --parents "$dist"
 DOWNLOAD='download'
 mkdir --parents "$DOWNLOAD"
 
+# Define repository URLs
 repo_url="http://deb.debian.org/debian"
 sec_repo_url="http://security.debian.org/"
-
-usage() {
-    echo "Usage: ${0} MACOS_CODESIGN_IDENTITY FILE-OR-DIRECTORY
-    name=
-    release=
-    keyrign=
-    variant=
-    repo_config=
-    debootstrap_packages=
-    packages=
-    recipes=
-    scripts=
-    help="
-    exit 0
-}
 
 ############################## SCRIPT MAIN ##############################
 
@@ -281,10 +338,16 @@ run printenv
 
 main() {
   timer-on
-  
-  header "Importing gpg key"
-  run gpg --no-default-keyring --keyring "$keyrign" --import "$scriptdir"/keys/buster.gpg
-  run gpg --no-default-keyring --keyring "$keyrign" --import "$scriptdir"/keys/unstable.gpg
+
+  # Fix GPG directory and import keys
+  header "Setting up GPG directory"
+  run rm -rf /root/.gnupg
+  run mkdir -p /root/.gnupg
+  run chmod 700 /root/.gnupg
+
+  header "Importing GPG keys"
+  run gpg --no-default-keyring --keyring /root/.gnupg/trustedkeys.gpg --import "$scriptdir"/keys/buster.gpg
+  run gpg --no-default-keyring --keyring /root/.gnupg/trustedkeys.gpg --import "$scriptdir"/keys/unstable.gpg
 
   header "Preparing debootstrap scripts"
   run cp --archive /usr/share/debootstrap/* "$debootstrap_dir"
@@ -292,12 +355,12 @@ main() {
 
   header "Using debootstrap to create rootfs"
   info "Building in chroot: $target"
-  DEBOOTSTRAP_DIR="$debootstrap_dir" run debootstrap --no-check-gpg --keyring "$keyrign" --variant "$variant" "${debootstrap_packages[@]}" --foreign "$release" "$target"
+  DEBOOTSTRAP_DIR="$debootstrap_dir" run debootstrap --no-check-gpg --keyring "$keyring" --variant "$variant" "${debootstrap_packages[@]}" --foreign "$release" "$target"
   LANG=C run chroot "$target" bash debootstrap/debootstrap --verbose --second-stage
 
   header "Configuring apt repos"
-  echo "deb "$repo_url" "$release"-updates main" >> "$target"/etc/apt/sources.list
-  echo "deb "$sec_repo_url" "$release"-security main" >> "$target"/etc/apt/sources.list
+  echo "deb $repo_url $release-updates main" >> "$target"/etc/apt/sources.list
+  echo "deb $sec_repo_url $release-security main" >> "$target"/etc/apt/sources.list
   run chroot "$target" apt-get update && apt-get install --yes --option Dpkg::Options::="--force-confdef"
 
   if [[ -v packages[@] ]]; then
@@ -306,7 +369,7 @@ main() {
     print-array ${packages[@]}
     echo
     run chroot "$target" apt-get update && retry 3 chroot "$target" apt-get install --yes --no-install-recommends "${packages[@]}"
-    info "Installed packges:"
+    info "Installed packages:"
     chroot "$target" dpkg-query --show --showformat='${Package} ${Installed-Size}\n'
   fi
 
@@ -318,7 +381,7 @@ main() {
     done < <(print-array ${recipes[@]})
   fi
 
-  header "Apply Docker specific apt settings"
+  header "Apply Docker-specific apt settings"
   run chroot "$target" apt-get --option Acquire::Check-Valid-Until=false update
   run chroot "$target" apt-get --yes --quiet upgrade
   echo '#!/bin/sh' > "$target"/usr/sbin/policy-rc.d
@@ -386,18 +449,18 @@ main() {
   echo ""
   echo "To load and run this Docker image, follow these steps:"
   echo ""
-  echo "1. Load the Docker image from the .tar file:"
+  echo "Load the Docker image from the .tar file:"
   echo "   cat "$dist"/"$name".tar | docker import - "$dist"/"$name""
   echo ""
-  echo "2. Verify the image was loaded successfully:"
+  echo "Verify the image was loaded successfully:"
   echo "   docker images"
   echo ""
-  echo "3. Run the Docker container:"
+  echo "Run the Docker container:"
   echo "   docker run -it <IMAGE_NAME>"
-  echo "   Replace <IMAGE_NAME> with the name of the image loaded in step 1."
+  echo "   Replace <IMAGE_NAME> with the name of the image loaded in the first step."
   echo ""
   echo "Example:"
-  echo "   docker run -it "$dist"/"$name""
+  echo "   docker run -it "$dist"/"$name" /bin/bash"
   echo "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::"
 
   timer-off

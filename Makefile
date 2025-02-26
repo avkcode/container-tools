@@ -68,7 +68,7 @@ debian11:
 	$(PRINT_HEADER)
 	$(DEBIAN_BUILD_SCRIPT) \
 			--name=$@ \
-			--keyrign=$(DEBIAN_KEYRING) \
+			--keyring=$(DEBIAN_KEYRING) \
 			--variant=container \
 			--release=stable \
 			--scripts=$(SCRIPTS)/security-scan.sh
@@ -77,7 +77,7 @@ debian11-java:
 	$(PRINT_HEADER)
 	$(DEBIAN_BUILD_SCRIPT) \
 			--name=$@ \
-			--keyrign=$(DEBIAN_KEYRING) \
+			--keyring=$(DEBIAN_KEYRING) \
 			--variant=container \
 			--release=stable \
 			--recipes=$(JAVA_RECIPES)/java.sh \
@@ -87,7 +87,7 @@ debian11-java-slim:
 	$(PRINT_HEADER)
 	$(DEBIAN_BUILD_SCRIPT) \
 			--name=$@ \
-			--keyrign=$(DEBIAN_KEYRING) \
+			--keyring=$(DEBIAN_KEYRING) \
 			--variant=container \
 			--release=stable \
 			--recipes=$(JAVA_RECIPES)/java_slim.sh \
@@ -97,7 +97,7 @@ debian11-graal:
 	$(PRINT_HEADER)
 	$(DEBIAN_BUILD_SCRIPT) \
 			--name=$@ \
-			--keyrign=$(DEBIAN_KEYRING) \
+			--keyring=$(DEBIAN_KEYRING) \
 			--variant=container \
 			--release=stable \
 			--recipes=$(JAVA_RECIPES)/graalvm.sh \
@@ -107,7 +107,7 @@ debian11-graal-slim:
 	$(PRINT_HEADER)
 	$(DEBIAN_BUILD_SCRIPT) \
 			--name=$@ \
-			--keyrign=$(DEBIAN_KEYRING) \
+			--keyring=$(DEBIAN_KEYRING) \
 			--variant=container \
 			--release=stable \
 			--recipes=$(JAVA_RECIPES)/graalvm_slim.sh \
@@ -117,7 +117,7 @@ debian11-corretto:
 	$(PRINT_HEADER)
 	$(DEBIAN_BUILD_SCRIPT) \
 			--name=$@ \
-			--keyrign=$(DEBIAN_KEYRING) \
+			--keyring=$(DEBIAN_KEYRING) \
 			--variant=container \
 			--release=stable \
 			--recipes=$(JAVA_RECIPES)/corretto.sh \
@@ -127,7 +127,7 @@ debian11-java-slim-maven:
 	$(PRINT_HEADER)
 	$(DEBIAN_BUILD_SCRIPT) \
 			--name=$@ \
-			--keyrign=$(DEBIAN_KEYRING) \
+			--keyring=$(DEBIAN_KEYRING) \
 			--variant=container \
 			--release=stable \
 			--recipes=$(JAVA_RECIPES)/java_slim.sh,$(JAVA_RECIPES)/maven.sh \
@@ -137,7 +137,7 @@ debian11-java-slim-gradle:
 	$(PRINT_HEADER)
 	$(DEBIAN_BUILD_SCRIPT) \
 			--name=$@ \
-			--keyrign=$(DEBIAN_KEYRING) \
+			--keyring=$(DEBIAN_KEYRING) \
 			--variant=container \
 			--release=stable \
 			--recipes=$(JAVA_RECIPES)/java_slim.sh,$(JAVA_RECIPES)/gradle.sh \
@@ -147,7 +147,7 @@ debian11-graal-slim-maven:
 	$(PRINT_HEADER)
 	$(DEBIAN_BUILD_SCRIPT) \
 			--name=$@ \
-			--keyrign=$(DEBIAN_KEYRING) \
+			--keyring=$(DEBIAN_KEYRING) \
 			--variant=container \
 			--release=stable \
 			--recipes=$(JAVA_RECIPES)/graalvm_slim.sh,$(JAVA_RECIPES)/maven.sh \
@@ -157,7 +157,7 @@ debian11-graal-slim-gradle:
 	$(PRINT_HEADER)
 	$(DEBIAN_BUILD_SCRIPT) \
 			--name=$@ \
-			--keyrign=$(DEBIAN_KEYRING) \
+			--keyring=$(DEBIAN_KEYRING) \
 			--variant=container \
 			--release=stable \
 			--recipes=$(JAVA_RECIPES)/graalvm_slim.sh,$(JAVA_RECIPES)/gradle.sh \
