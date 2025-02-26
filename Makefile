@@ -1,5 +1,6 @@
 .PHONY: help shellcheck qemu-user-static debian11 debian11-java-jdk18 debian11-java-jdk18-slim debian11-java-jdk18-maven-slim
 
+
 .DEFAULT_GOAL := help
 .ONESHELL:
 .EXPORT_ALL_VARIABLES:
@@ -25,11 +26,13 @@ help:
 	@echo " * 'shellcheck' - Bash scripts linter"
 	@echo
 	@echo " * 'qemu-user-static' - Register binfmt_misc, qemu-user-static"
+	@echo " * 'sign-tar-files' - Target to sign .tar files in */dist using Cosign"
 	@echo
 	@echo " ============================"
 	@echo "  ** Debian Linux targets ** "
 	@echo " ============================"
 	@echo
+	@echo "|all|"
 	@echo "|debian11|"
 	@echo "|debian11-java|"
 	@echo "|debian11-java-slim|"

@@ -1,2 +1,4 @@
 debian/dist
 download
+cosign.key
+cosign.pub
