@@ -58,6 +58,7 @@ PRINT_HEADER = @echo -e "\n********************[ $@ ]********************\n"
 
 RECIPES = recipes
 JAVA_RECIPES = $(RECIPES)/java
+JULIA_RECIPES = $(RECIPES)/julia
 SCRIPTS = scripts
 
 DEBIAN_DIR = debian
@@ -166,3 +167,27 @@ debian11-graal-slim-gradle:
 			--recipes=$(JAVA_RECIPES)/graalvm_slim.sh,$(JAVA_RECIPES)/gradle.sh \
 			--scripts=$(SCRIPTS)/security-scan.sh
 
+
+
+debian11-julia-slim:
+	$(PRINT_HEADER)
+	$(DEBIAN_BUILD_SCRIPT) \
+                        --name=$@ \
+                        --keyring=$(DEBIAN_KEYRING) \
+                        --variant=container \
+                        --release=stable \
+                        --recipes=$(JULIA_RECIPES)/julia.sh
+
+REQUIRED_TOOLS := docker bash grep sed awk debootstrap unzip
+check-dependencies:
+	$(PRINT_HEADER)
+	@echo "Checking required dependencies..."
+	@for tool in $(REQUIRED_TOOLS); do \
+ 		if ! command -v $$tool >/dev/null 2>&1; then \
+ 			echo "Error: Required tool '$$tool' is not installed."; \
+ 		exit 1; \
+		else \
+ 			echo "Found: $$tool"; \
+		fi; \
+	done
+	@echo "All dependencies are satisfied."
