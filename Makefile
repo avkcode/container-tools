@@ -43,6 +43,8 @@ help:
 	@echo "|debian11-java-slim-gradle|"
 	@echo "|debian11-graal-slim-maven|"
 	@echo "|debian11-graal-slim-gradle|"
+	@echo "|debian11-java-kafka|"
+	@echo "|debian11-java-slim-kafka|"
 
 #------------------------------------------------------------------------------
 SHELL = /usr/bin/env bash -o pipefail
