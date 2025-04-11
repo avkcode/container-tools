@@ -1,6 +1,17 @@
-![Container Tools](https://raw.githubusercontent.com/avkcode/container-tools/refs/heads/main/favicon.svg){width="80"}  
+# Container Tools
 
-Container Tools is a project that provides scripts and utilities to automate the creation of minimal Debian-based root filesystems (rootfs) using debootstrap. It supports customization with specific packages, configurations, and integrates security scanning for containerized environments.
+<table>
+  <tr>
+    <td valign="top" width="100">
+      <img src="https://raw.githubusercontent.com/avkcode/container-tools/refs/heads/main/favicon.svg"
+           alt="Container Tools"
+           width="80">
+    </td>
+    <td valign="middle">
+      Container Tools is a project that provides scripts and utilities to automate the creation of minimal Debian-based root filesystems (rootfs) using debootstrap. It supports customization with specific packages, configurations, and integrates security scanning for containerized environments.
+    </td>
+  </tr>
+</table>
 
 Scripts for building Docker base images:
 ```
