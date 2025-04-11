@@ -13,6 +13,16 @@
   </tr>
 </table>
 
+## Rational
+When building containerized environments using standard Dockerfiles, each customization layer creates:
+- Storage bloat - Every RUN apt-get install creates a new layer, wasting disk space with duplicate dependencies
+- Network inefficiency - Redundant package downloads occur across different images
+- Slow iterations - Rebuilding images requires repeating all previous steps
+With this tool one can build:
+- Minimal base images from scratch using debootstrap
+- Precisely including only required components in the initial build
+- Creating specialized variants (Java, Kafka, etc.) from common foundations
+
 ## How it works:
 ```
 Usage: make <target>
