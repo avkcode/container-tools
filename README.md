@@ -38,32 +38,46 @@ Usage: make <target>
 ```
 [Image was built successfully]
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-
-Artifact location: debian/dist/debian11-java-slim-kafka/debian11-java-slim-kafka.tar
-
-Artifact size: 228M
-
+Artifact location: debian/dist/debian11-graal-slim/debian11-graal-slim.tar
+Artifact size: 124M
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 Image was built successfully!
-Artifact location: debian/dist/debian11-java-slim-kafka/debian11-java-slim-kafka.tar
-
+Artifact location: debian/dist/debian11-graal-slim/debian11-graal-slim.tar
 To load and run this Docker image, follow these steps:
-
 Load the Docker image from the .tar file:
-   cat debian/dist/debian11-java-slim-kafka/debian11-java-slim-kafka.tar | docker import - debian/dist/debian11-java-slim-kafka/debian11-java-slim-kafka
-
+   cat debian/dist/debian11-graal-slim/debian11-graal-slim.tar | docker import - debian/dist/debian11-graal-slim/debian11-graal-slim
 Verify the image was loaded successfully:
    docker images
-
 Run the Docker container:
    docker run -it <IMAGE_NAME>
    Replace <IMAGE_NAME> with the name of the image loaded in the first step.
-
 Example:
-   docker run -it debian/dist/debian11-java-slim-kafka/debian11-java-slim-kafka /bin/bash
+   docker run -it debian/dist/debian11-graal-slim/debian11-graal-slim /bin/bash
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-Time elapsed: 182
+Time elapsed: 193
 ```
+
+## How to extend
+1. Add recipe to recipes/
+2. Make sure that the link to artifact and SHA256 is correct (e.g `sha256sum kafka_2.13-4.0.0.tgz`):
+```bash
+KAFKA_VERSION='4.0.0'
+KAFKA_SHA='7b852e938bc09de10cd96eca3755258c7d25fb89dbdd76305717607e1835e2aa'
+KAFKA_URL="https://downloads.apache.org/kafka/${KAFKA_VERSION}/kafka_2.13-${KAFKA_VERSION}.tgz"
+```
+3. Add target to the Makefile
+```makefile
+debian11-java-slim-kafka:
+	$(PRINT_HEADER)
+	$(DEBIAN_BUILD_SCRIPT) \
+			--name=$@ \
+			--keyring=$(DEBIAN_KEYRING) \
+			--variant=container \
+			--release=stable \
+			--recipes=$(JAVA_RECIPES)/java_slim.sh,$(RECIPES)/kafka/kafka.sh \
+			--scripts=$(SCRIPTS)/security-scan.sh
+```
+Profit
 
 ## Repository Directory Structure
 
