@@ -21,6 +21,98 @@
 </body>
 </html>
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Styled Separator</title>
+  <style>
+    /* Velvet Background */
+    .separator {
+      position: relative;
+      width: 100%;
+      height: 40px;
+      background: radial-gradient(circle at center, #3b1f47, #2a1233, #1a0c1f);
+      overflow: hidden;
+    }
+
+    /* Dotted Pattern Overlay */
+    .separator::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: repeating-radial-gradient(
+        circle at 5px 5px,
+        transparent 0,
+        transparent 9px,
+        rgba(90, 61, 107, 0.6) 10px
+      );
+      background-size: 20px 20px;
+      opacity: 0.8;
+    }
+
+    /* Gold Gradient Line */
+    .separator-line {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 90%;
+      height: 4px;
+      background: linear-gradient(
+        to bottom right,
+        #fff8d8 0%,
+        #f7e394 30%,
+        #e6c35a 50%,
+        #c59b3a 70%,
+        #a67c00 100%
+      );
+      border-radius: 2px;
+    }
+
+    /* Subtle Bevel Shine Effect */
+    .separator-line::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.1) 0%,
+        rgba(255, 255, 255, 0.05) 40%,
+        rgba(0, 0, 0, 0.1) 100%
+      );
+      border-radius: 2px;
+    }
+
+    /* Drop Shadow Effect */
+    .separator-line::before {
+      content: '';
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.2);
+      filter: blur(4px);
+      opacity: 0.8;
+      z-index: -1;
+    }
+  </style>
+</head>
+<body>
+  <div class="separator">
+    <div class="separator-line"></div>
+  </div>
+</body>
+</html>
+
 Scripts for building Docker base images:
 ```
 make
