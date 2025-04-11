@@ -168,15 +168,26 @@ debian11-graal-slim-gradle:
 			--scripts=$(SCRIPTS)/security-scan.sh
 
 
-
-debian11-julia-slim:
+debian11-java-kafka:
 	$(PRINT_HEADER)
 	$(DEBIAN_BUILD_SCRIPT) \
-                        --name=$@ \
-                        --keyring=$(DEBIAN_KEYRING) \
-                        --variant=container \
-                        --release=stable \
-                        --recipes=$(JULIA_RECIPES)/julia.sh
+			--name=$@ \
+			--keyring=$(DEBIAN_KEYRING) \
+			--variant=container \
+			--release=stable \
+			--recipes=$(JAVA_RECIPES)/java.sh,$(RECIPES)/kafka/kafka.sh \
+			--scripts=$(SCRIPTS)/security-scan.sh
+
+debian11-java-slim-kafka:
+	$(PRINT_HEADER)
+	$(DEBIAN_BUILD_SCRIPT) \
+			--name=$@ \
+			--keyring=$(DEBIAN_KEYRING) \
+			--variant=container \
+			--release=stable \
+			--recipes=$(JAVA_RECIPES)/java_slim.sh,$(RECIPES)/kafka/kafka.sh \
+			--scripts=$(SCRIPTS)/security-scan.sh
+
 
 REQUIRED_TOOLS := docker bash grep sed awk debootstrap unzip
 check-dependencies:

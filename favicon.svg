@@ -1,0 +1,88 @@
+<svg width="240" height="280" viewBox="0 0 240 280" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Gold gradient -->
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fff8d8"/>
+      <stop offset="30%" stop-color="#f7e394"/>
+      <stop offset="50%" stop-color="#e6c35a"/>
+      <stop offset="70%" stop-color="#c59b3a"/>
+      <stop offset="100%" stop-color="#a67c00"/>
+    </linearGradient>
+
+    <!-- Background gradient with dotted pattern -->
+    <pattern id="dottedPattern" patternUnits="userSpaceOnUse" width="20" height="20" patternTransform="rotate(45)">
+      <circle cx="5" cy="5" r="1" fill="#5a3d6b" opacity="0.6"/>
+    </pattern>
+    
+    <radialGradient id="velvet" cx="50%" cy="50%" r="80%">
+      <stop offset="0%" stop-color="#3b1f47"/>
+      <stop offset="50%" stop-color="#2a1233"/>
+      <stop offset="100%" stop-color="#1a0c1f"/>
+    </radialGradient>
+
+    <!-- Subtle Bevel Shine -->
+    <linearGradient id="shine" x1="0" y1="0" x2="1" y2="1" gradientTransform="rotate(45)">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.1"/>
+      <stop offset="40%" stop-color="#ffffff" stop-opacity="0.05"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0.1"/>
+    </linearGradient>
+
+    <!-- Drop shadow -->
+    <filter id="deepShadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feOffset result="offOut" in="SourceAlpha" dx="6" dy="8" />
+      <feGaussianBlur result="blurOut" in="offOut" stdDeviation="4" />
+      <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
+    </filter>
+
+    <!-- Diamond facet pattern  -->
+    <pattern id="facetPattern" patternUnits="userSpaceOnUse" width="20" height="20">
+      <path d="M0,0 L20,0 L10,10 Z" fill="#000000" opacity="0.03"/>
+      <path d="M20,0 L20,20 L10,10 Z" fill="#000000" opacity="0.03"/>
+    </pattern>
+  </defs>
+
+  <!-- Background with dotted pattern -->
+  <rect width="240" height="280" rx="40" ry="40" fill="url(#velvet)"/>
+  <rect width="240" height="280" rx="40" ry="40" fill="url(#dottedPattern)"/>
+  
+  <!-- Icon border with thin bevel -->
+  <rect width="240" height="280" rx="40" ry="40"
+        fill="none" stroke="url(#gold)" stroke-width="3"/>
+  <rect x="0" y="0" width="240" height="280" rx="40" ry="40" fill="url(#shine)"/>
+
+  <!-- Tamoe -->
+  <g transform="translate(120,140) scale(1.2)">
+    <!-- Shadow layers -->
+    <path d="M0,-80 A80,80 0 0,1 60,-40 L30,-10 A30,30 0 0,0 0,-40 Z 
+             M0,-80 A80,80 0 0,1 -60,-40 L-30,-10 A30,30 0 0,0 0,-40 Z 
+             M0,80 A80,80 0 0,0 60,40 L30,10 A30,30 0 0,1 0,40 Z 
+             M0,80 A80,80 0 0,0 -60,40 L-30,10 A30,30 0 0,1 0,40 Z" 
+          fill="#1a0c1f" opacity="0.6" transform="translate(8,10)" />
+    <path d="M0,-80 A80,80 0 0,1 60,-40 L30,-10 A30,30 0 0,0 0,-40 Z 
+             M0,-80 A80,80 0 0,1 -60,-40 L-30,-10 A30,30 0 0,0 0,-40 Z 
+             M0,80 A80,80 0 0,0 60,40 L30,10 A30,30 0 0,1 0,40 Z 
+             M0,80 A80,80 0 0,0 -60,40 L-30,10 A30,30 0 0,1 0,40 Z" 
+          fill="#3b1f47" opacity="0.9" transform="translate(4,5)" />
+    
+    <!-- Main Tamoe -->
+    <path d="M0,-80 A80,80 0 0,1 60,-40 L30,-10 A30,30 0 0,0 0,-40 Z 
+             M0,-80 A80,80 0 0,1 -60,-40 L-30,-10 A30,30 0 0,0 0,-40 Z 
+             M0,80 A80,80 0 0,0 60,40 L30,10 A30,30 0 0,1 0,40 Z 
+             M0,80 A80,80 0 0,0 -60,40 L-30,10 A30,30 0 0,1 0,40 Z" 
+          fill="url(#gold)" filter="url(#deepShadow)" />
+    
+    <!-- Subtle facet texture -->
+    <path d="M0,-80 A80,80 0 0,1 60,-40 L30,-10 A30,30 0 0,0 0,-40 Z 
+             M0,-80 A80,80 0 0,1 -60,-40 L-30,-10 A30,30 0 0,0 0,-40 Z 
+             M0,80 A80,80 0 0,0 60,40 L30,10 A30,30 0 0,1 0,40 Z 
+             M0,80 A80,80 0 0,0 -60,40 L-30,10 A30,30 0 0,1 0,40 Z" 
+          fill="url(#facetPattern)" opacity="0.60"/>
+    
+    <!-- Thin dark bevel lines -->
+    <path d="M0,-80 A80,80 0 0,1 60,-40 L30,-10 A30,30 0 0,0 0,-40 Z 
+             M0,-80 A80,80 0 0,1 -60,-40 L-30,-10 A30,30 0 0,0 0,-40 Z 
+             M0,80 A80,80 0 0,0 60,40 L30,10 A30,30 0 0,1 0,40 Z 
+             M0,80 A80,80 0 0,0 -60,40 L-30,10 A30,30 0 0,1 0,40 Z" 
+          fill="none" stroke="#000000" stroke-opacity="0.5" stroke-width="0.5"/>
+  </g>
+</svg>
