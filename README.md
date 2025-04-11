@@ -21,13 +21,36 @@
 </body>
 </html>
 
-<div style="position: relative; width: 100%; height: 40px; background: radial-gradient(circle at center, #3b1f47, #2a1233, #1a0c1f); overflow: hidden;">
-  <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: repeating-radial-gradient(circle at 5px 5px, transparent 0, transparent 9px, rgba(90, 61, 107, 0.6) 10px); background-size: 20px 20px; opacity: 0.8;"></div>
-  <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; height: 4px; background: linear-gradient(to bottom right, #fff8d8 0%, #f7e394 30%, #e6c35a 50%, #c59b3a 70%, #a67c00 100%); border-radius: 2px;">
-    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 40%, rgba(0, 0, 0, 0.1) 100%); border-radius: 2px;"></div>
-    <div style="position: absolute; top: 4px; left: 4px; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.2); filter: blur(4px); opacity: 0.8; z-index: -1;"></div>
-  </div>
-</div>
+<svg width="100%" height="40" viewBox="0 0 240 40" xmlns="http://www.w3.org/2000/svg" style="margin: 20px 0;">
+  <defs>
+    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fff8d8"/>
+      <stop offset="30%" stop-color="#f7e394"/>
+      <stop offset="50%" stop-color="#e6c35a"/>
+      <stop offset="70%" stop-color="#c59b3a"/>
+      <stop offset="100%" stop-color="#a67c00"/>
+    </linearGradient>
+
+    <!-- Velvet Background -->
+    <radialGradient id="velvet" cx="50%" cy="50%" r="80%">
+      <stop offset="0%" stop-color="#3b1f47"/>
+      <stop offset="50%" stop-color="#2a1233"/>
+      <stop offset="100%" stop-color="#1a0c1f"/>
+    </radialGradient>
+
+    <!-- Dotted Pattern -->
+    <pattern id="dottedPattern" patternUnits="userSpaceOnUse" width="10" height="10">
+      <circle cx="2" cy="2" r="1" fill="#5a3d6b" opacity="0.6"/>
+    </pattern>
+  </defs>
+
+  <rect width="100%" height="40" fill="url(#velvet)"/>
+
+  <rect width="100%" height="40" fill="url(#dottedPattern)"/>
+
+  <line x1="10" y1="20" x2="calc(100% - 10)" y2="20" stroke="url(#gold)" stroke-width="4" stroke-linecap="round"/>
+</svg>
+
 
 Scripts for building Docker base images:
 ```
