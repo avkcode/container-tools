@@ -1,56 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Container Tools</title>
-</head>
-<body>
-    <table>
-        <tr>
-            <td valign="top" width="100">
-                <img src="https://raw.githubusercontent.com/avkcode/container-tools/refs/heads/main/favicon.svg"
-                     alt="Container Tools"
-                     width="80">
-            </td>
-            <td valign="middle">
-                Container Tools is a project that provides scripts and utilities to automate the creation of minimal Debian-based root filesystems (rootfs) using debootstrap. It supports customization with specific packages, configurations, and integrates security scanning for containerized environments.
-            </td>
-        </tr>
-    </table>
-</body>
-</html>
+![Container Tools](https://raw.githubusercontent.com/avkcode/container-tools/refs/heads/main/favicon.svg){width="80"}  
 
-<svg width="100%" height="40" viewBox="0 0 240 40" xmlns="http://www.w3.org/2000/svg" style="margin: 20px 0;">
-  <defs>
-    <linearGradient id="gold" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#fff8d8"/>
-      <stop offset="30%" stop-color="#f7e394"/>
-      <stop offset="50%" stop-color="#e6c35a"/>
-      <stop offset="70%" stop-color="#c59b3a"/>
-      <stop offset="100%" stop-color="#a67c00"/>
-    </linearGradient>
-
-    <!-- Velvet Background -->
-    <radialGradient id="velvet" cx="50%" cy="50%" r="80%">
-      <stop offset="0%" stop-color="#3b1f47"/>
-      <stop offset="50%" stop-color="#2a1233"/>
-      <stop offset="100%" stop-color="#1a0c1f"/>
-    </radialGradient>
-
-    <!-- Dotted Pattern -->
-    <pattern id="dottedPattern" patternUnits="userSpaceOnUse" width="10" height="10">
-      <circle cx="2" cy="2" r="1" fill="#5a3d6b" opacity="0.6"/>
-    </pattern>
-  </defs>
-
-  <rect width="100%" height="40" fill="url(#velvet)"/>
-
-  <rect width="100%" height="40" fill="url(#dottedPattern)"/>
-
-  <line x1="10" y1="20" x2="calc(100% - 10)" y2="20" stroke="url(#gold)" stroke-width="4" stroke-linecap="round"/>
-</svg>
-
+Container Tools is a project that provides scripts and utilities to automate the creation of minimal Debian-based root filesystems (rootfs) using debootstrap. It supports customization with specific packages, configurations, and integrates security scanning for containerized environments.
 
 Scripts for building Docker base images:
 ```
