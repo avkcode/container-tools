@@ -1,5 +1,10 @@
-.PHONY: help shellcheck qemu-user-static debian11 debian11-java-jdk18 debian11-java-jdk18-slim debian11-java-jdk18-maven-slim
-
+# ==============================================================================
+# Phony Targets
+# ==============================================================================
+.PHONY: help all check-dependencies shellcheck qemu-user-static \
+        debian-base debian-java debian-java-slim debian-graal \
+        debian-corretto debian-java-slim-maven debian-java-slim-gradle \
+        debian-java-kafka clean
 
 .DEFAULT_GOAL := help
 .ONESHELL:
@@ -29,6 +34,7 @@ help:
 	@echo " * 'sign-tar-files' - Target to sign .tar files in */dist using Cosign"
 	@echo
 	@echo " * 'check-dependencies' - Check for required tools and dependencies"
+	@echo " * 'clean' - Remove all build artifacts and downloaded files"
 	@echo " ============================"
 	@echo "  ** Debian Linux targets ** "
 	@echo " ============================"
@@ -205,3 +211,18 @@ check-dependencies:
 		fi; \
 	done
 	@echo "All dependencies are satisfied."
+
+
+DOWNLOADS_DIR := download
+DIST_DIR := debian/dist
+
+clean: ## Remove all build artifacts and downloads
+	@echo -e "Cleaning build artifacts and downloads..."
+	@if [ -d "$(DIST_DIR)" ]; then \
+		echo -e "Removing distributions..."; \
+		rm -rf $(DIST_DIR)/*; \
+	fi
+	@if [ -d "$(DOWNLOADS_DIR)" ]; then \
+		echo -e "Removing downloaded files..."; \
+		rm -rf $(DOWNLOADS_DIR)/*; \
+	fi
