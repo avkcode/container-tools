@@ -28,6 +28,7 @@ help:
 	@echo " * 'qemu-user-static' - Register binfmt_misc, qemu-user-static"
 	@echo " * 'sign-tar-files' - Target to sign .tar files in */dist using Cosign"
 	@echo
+	@echo " * 'check-dependencies' - Check for required tools and dependencies"
 	@echo " ============================"
 	@echo "  ** Debian Linux targets ** "
 	@echo " ============================"
