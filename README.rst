@@ -94,26 +94,12 @@ To add new components:
 2. Verify artifact URLs and SHA256 checksums
 3. Add a new target to the Makefile
 
-Example for adding NodeJS:
-
-.. code-block:: makefile
-
-debian11-nodejs:
-	$(PRINT_HEADER)
-	$(DEBIAN_BUILD_SCRIPT) \
-			--name=$@ \
-			--keyring=$(DEBIAN_KEYRING) \
-			--variant=container \
-			--release=stable \
-			--recipes=$(RECIPES)/nodejs/nodejs.sh \
-			--scripts=$(SCRIPTS)/security-scan.sh
-
 Clean Room Building with Firecracker
 -----------------------------------
 
 For secure, isolated builds:
 
-1. Set up Firecracker sandbox:
+1. Set up `Firecracker sandbox https://github.com/avkcode/firecracker-sandbox`_:
 
 Firecracker requires bootable rootfs image and Linux Kernel. To create rootfs and download prebuilt Kernel execute ``create-debian-rootfs.sh`` script:
 
