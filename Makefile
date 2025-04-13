@@ -14,32 +14,25 @@ ifndef VERBOSE
 .SILENT:
 endif
 
-include Makefile.inc
-
-#------------------------------------------------------------------------------
-
-print-%:
-	@echo '$*=$(subst ','\'',$(subst $(newline),\n,$($*)))'
-
+.DELETE_ON_ERROR: # Delete target files if recipe fails
+# ==============================================================================
+# Help
+# ==============================================================================
 help:
 	@echo
 	@echo "Usage: make <target>"
 	@echo
-	@echo " * 'print-%' - print-{VAR} - Print variables"
-	@echo
-	@echo
 	@echo " * 'shellcheck' - Bash scripts linter"
-	@echo
-	@echo " * 'qemu-user-static' - Register binfmt_misc, qemu-user-static"
-	@echo " * 'sign-tar-files' - Target to sign .tar files in */dist using Cosign"
 	@echo
 	@echo " * 'check-dependencies' - Check for required tools and dependencies"
 	@echo " * 'clean' - Remove all build artifacts and downloaded files"
+	@echo
 	@echo " ============================"
 	@echo "  ** Debian Linux targets ** "
 	@echo " ============================"
 	@echo
 	@echo "|all|"
+	@echo
 	@echo "|debian11|"
 	@echo "|debian11-java|"
 	@echo "|debian11-java-slim|"
@@ -56,7 +49,9 @@ help:
 	@echo	
 	@echo "|debian11-nodejs|"
 
-#------------------------------------------------------------------------------
+# ==============================================================================
+# Configuration
+# ==============================================================================
 SHELL = /usr/bin/env bash -o pipefail
 .SHELLFLAGS = -ec
 
@@ -78,6 +73,9 @@ DEBIAN_BUILD_SCRIPT = $(DEBIAN_DIR)/mkimage.sh
 DEBIAN_KEYS_DIRECTORY = $(DEBIAN_DIR)/keys
 DEBIAN_KEYRING = $(DEBIAN_KEYS_DIRECTORY)/debian-archive-keyring.gpg
 
+# ==============================================================================
+# Build Targets
+# ==============================================================================
 all:debian11 debian11-java debian11-java-slim debian11-graal debian11-graal-slim debian11-corretto debian11-java-slim-maven debian11-java-slim-gradle debian11-nodejs debian11-java-slim-kafka debian11-java-kafka
 
 debian11:
@@ -211,6 +209,9 @@ debian11-nodejs:
 			--recipes=$(RECIPES)/nodejs/nodejs.sh \
 			--scripts=$(SCRIPTS)/security-scan.sh
 
+# ==============================================================================
+# Utility Targets
+# ==============================================================================
 REQUIRED_TOOLS := docker bash grep sed awk debootstrap unzip
 check-dependencies:
 	$(PRINT_HEADER)
@@ -280,3 +281,7 @@ bundle:
 	@echo "Creating git bundle..."
 	git bundle create bundle-$(GIT_BRANCH)-$(GIT_COMMIT).bundle --all
 	@echo "Bundle created: bundle-$(GIT_BRANCH)-$(GIT_COMMIT).bundle"
+
+.PHONY: shellcheck
+shellcheck:
+	@shellcheck --severity=error --enable=all --shell=bash $(shell find . -type f -name "*.sh")

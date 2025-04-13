@@ -1,4 +1,3 @@
-# LINUX_BOX = "hbsmith/fedora-35-aarch64"
 LINUX_BOX = "spox/ubuntu-arm"
 CPUS = "2"
 
