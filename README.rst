@@ -115,13 +115,12 @@ For secure, isolated builds:
 
 1. Set up Firecracker sandbox:
 
-Firecracker requires bootable rootfs image and Linux Kernel. To create rootfs and download prebuilt Kernel execute `create-debian-rootfs.sh`script:
+Firecracker requires bootable rootfs image and Linux Kernel. To create rootfs and download prebuilt Kernel execute ``create-debian-rootfs.sh``script:
+
 .. code-block:: bash
 
    git clone https://github.com/avkcode/firecracker-sandbox.git
-
    cd firecracker-sandbox
-
    bash tools/create-debian-rootfs.sh
 
 It should produce ``firecracker-rootfs.ext4`` and ``vmlinux`` files. ``vm-config.json`` is used for VM boot options.
