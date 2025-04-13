@@ -81,6 +81,9 @@ DEBIAN_BUILD_SCRIPT = $(DEBIAN_DIR)/mkimage.sh
 DEBIAN_KEYS_DIRECTORY = $(DEBIAN_DIR)/keys
 DEBIAN_KEYRING = $(DEBIAN_KEYS_DIRECTORY)/debian-archive-keyring.gpg
 
+VARIANT ?= container
+RELEASE ?= stable
+
 # ==============================================================================
 # Build Targets
 # ==============================================================================
@@ -101,8 +104,8 @@ debian11:
 	$(DEBIAN_BUILD_SCRIPT) \
 			--name=$@ \
 			--keyring=$(DEBIAN_KEYRING) \
-			--variant=container \
-			--release=stable \
+			--variant=$(VARIANT) \
+			--release=$(RELEASE) \
 			--scripts=$(SCRIPTS)/security-scan.sh
 
 debian11-java:
@@ -110,8 +113,8 @@ debian11-java:
 	$(DEBIAN_BUILD_SCRIPT) \
 			--name=$@ \
 			--keyring=$(DEBIAN_KEYRING) \
-			--variant=container \
-			--release=stable \
+			--variant=$(VARIANT) \
+			--release=$(RELEASE) \
 			--recipes=$(JAVA_RECIPES)/java.sh \
 			--scripts=$(SCRIPTS)/security-scan.sh
 
@@ -120,8 +123,8 @@ debian11-java-slim:
 	$(DEBIAN_BUILD_SCRIPT) \
 			--name=$@ \
 			--keyring=$(DEBIAN_KEYRING) \
-			--variant=container \
-			--release=stable \
+			--variant=$(VARIANT) \
+			--release=$(RELEASE) \
 			--recipes=$(JAVA_RECIPES)/java_slim.sh \
 			--scripts=$(SCRIPTS)/security-scan.sh
 
@@ -130,8 +133,8 @@ debian11-graal:
 	$(DEBIAN_BUILD_SCRIPT) \
 			--name=$@ \
 			--keyring=$(DEBIAN_KEYRING) \
-			--variant=container \
-			--release=stable \
+			--variant=$(VARIANT) \
+			--release=$(RELEASE) \
 			--recipes=$(JAVA_RECIPES)/graalvm.sh \
 			--scripts=$(SCRIPTS)/security-scan.sh
 
@@ -140,8 +143,8 @@ debian11-graal-slim:
 	$(DEBIAN_BUILD_SCRIPT) \
 			--name=$@ \
 			--keyring=$(DEBIAN_KEYRING) \
-			--variant=container \
-			--release=stable \
+			--variant=$(VARIANT) \
+			--release=$(RELEASE) \
 			--recipes=$(JAVA_RECIPES)/graalvm_slim.sh \
 			--scripts=$(SCRIPTS)/security-scan.sh
 
@@ -150,8 +153,8 @@ debian11-corretto:
 	$(DEBIAN_BUILD_SCRIPT) \
 			--name=$@ \
 			--keyring=$(DEBIAN_KEYRING) \
-			--variant=container \
-			--release=stable \
+			--variant=$(VARIANT) \
+			--release=$(RELEASE) \
 			--recipes=$(JAVA_RECIPES)/corretto.sh \
 			--scripts=$(SCRIPTS)/security-scan.sh
 
@@ -160,8 +163,8 @@ debian11-java-slim-maven:
 	$(DEBIAN_BUILD_SCRIPT) \
 			--name=$@ \
 			--keyring=$(DEBIAN_KEYRING) \
-			--variant=container \
-			--release=stable \
+			--variant=$(VARIANT) \
+			--release=$(RELEASE) \
 			--recipes=$(JAVA_RECIPES)/java_slim.sh,$(JAVA_RECIPES)/maven.sh \
 			--scripts=$(SCRIPTS)/security-scan.sh
 
@@ -170,8 +173,8 @@ debian11-java-slim-gradle:
 	$(DEBIAN_BUILD_SCRIPT) \
 			--name=$@ \
 			--keyring=$(DEBIAN_KEYRING) \
-			--variant=container \
-			--release=stable \
+			--variant=$(VARIANT) \
+			--release=$(RELEASE) \
 			--recipes=$(JAVA_RECIPES)/java_slim.sh,$(JAVA_RECIPES)/gradle.sh \
 			--scripts=$(SCRIPTS)/security-scan.sh
 
@@ -180,8 +183,8 @@ debian11-graal-slim-maven:
 	$(DEBIAN_BUILD_SCRIPT) \
 			--name=$@ \
 			--keyring=$(DEBIAN_KEYRING) \
-			--variant=container \
-			--release=stable \
+			--variant=$(VARIANT) \
+			--release=$(RELEASE) \
 			--recipes=$(JAVA_RECIPES)/graalvm_slim.sh,$(JAVA_RECIPES)/maven.sh \
 			--scripts=$(SCRIPTS)/security-scan.sh
 
@@ -190,8 +193,8 @@ debian11-graal-slim-gradle:
 	$(DEBIAN_BUILD_SCRIPT) \
 			--name=$@ \
 			--keyring=$(DEBIAN_KEYRING) \
-			--variant=container \
-			--release=stable \
+			--variant=$(VARIANT) \
+			--release=$(RELEASE) \
 			--recipes=$(JAVA_RECIPES)/graalvm_slim.sh,$(JAVA_RECIPES)/gradle.sh \
 			--scripts=$(SCRIPTS)/security-scan.sh
 
@@ -201,8 +204,8 @@ debian11-java-kafka:
 	$(DEBIAN_BUILD_SCRIPT) \
 			--name=$@ \
 			--keyring=$(DEBIAN_KEYRING) \
-			--variant=container \
-			--release=stable \
+			--variant=$(VARIANT) \
+			--release=$(RELEASE) \
 			--recipes=$(JAVA_RECIPES)/java.sh,$(RECIPES)/kafka/kafka.sh \
 			--scripts=$(SCRIPTS)/security-scan.sh
 
@@ -211,8 +214,8 @@ debian11-java-slim-kafka:
 	$(DEBIAN_BUILD_SCRIPT) \
 			--name=$@ \
 			--keyring=$(DEBIAN_KEYRING) \
-			--variant=container \
-			--release=stable \
+			--variant=$(VARIANT) \
+			--release=$(RELEASE) \
 			--recipes=$(JAVA_RECIPES)/java_slim.sh,$(RECIPES)/kafka/kafka.sh \
 			--scripts=$(SCRIPTS)/security-scan.sh
 
@@ -222,8 +225,8 @@ debian11-nodejs:
 	$(DEBIAN_BUILD_SCRIPT) \
 			--name=$@ \
 			--keyring=$(DEBIAN_KEYRING) \
-			--variant=container \
-			--release=stable \
+			--variant=$(VARIANT) \
+			--release=$(RELEASE) \
 			--recipes=$(RECIPES)/nodejs/nodejs.sh \
 			--scripts=$(SCRIPTS)/security-scan.sh
 

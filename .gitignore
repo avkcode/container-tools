@@ -1,4 +1,3 @@
 debian/dist
 download
-cosign.key
-cosign.pub
+*.tar.gz

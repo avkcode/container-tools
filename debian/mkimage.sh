@@ -346,15 +346,14 @@ main() {
   run chmod 700 /root/.gnupg
 
   header "Importing GPG keys"
-  run gpg --no-default-keyring --keyring /root/.gnupg/trustedkeys.gpg --import "$scriptdir"/keys/buster.gpg
-  run gpg --no-default-keyring --keyring /root/.gnupg/trustedkeys.gpg --import "$scriptdir"/keys/unstable.gpg
-
+  run gpg --batch --no-default-keyring --keyring /root/.gnupg/trustedkeys.gpg --import "$scriptdir"/keys/buster.gpg
+  run gpg --batch --no-default-keyring --keyring /root/.gnupg/trustedkeys.gpg --import "$scriptdir"/keys/unstable.gpg
+  
   header "Preparing debootstrap scripts"
   run cp --archive /usr/share/debootstrap/* "$debootstrap_dir"
   run cp --archive "$scriptdir"/debootstrap/* "$debootstrap_dir/scripts"
 
   header "Using debootstrap to create rootfs"
-  info "Building in chroot: $target"
   DEBOOTSTRAP_DIR="$debootstrap_dir" run debootstrap --no-check-gpg --keyring "$keyring" --variant "$variant" "${debootstrap_packages[@]}" --foreign "$release" "$target"
   LANG=C run chroot "$target" bash debootstrap/debootstrap --verbose --second-stage
 
