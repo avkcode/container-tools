@@ -45,6 +45,22 @@ Prerequisites
 - make
 - curl, unzip, sudo
 
+Displaying Help
+--------------
+
+To view all available build targets and their descriptions, run:
+
+.. code-block:: bash
+
+    make help
+
+This will display:
+- All available image build targets (Debian, Java, GraalVM, etc.)
+- Utility targets (clean, test, shellcheck)
+- Dependency checking commands
+
+For detailed information about a specific target, you can also view the Makefile directly.
+
 Building Images
 ~~~~~~~~~~~~~~
 
