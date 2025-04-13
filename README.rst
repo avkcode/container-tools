@@ -95,9 +95,6 @@ To add new components:
 3. Add a new target to the Makefile
 
 Example for adding NodeJS:
-
-.. code-block::
-
 debian11-nodejs:
 	$(PRINT_HEADER)
 	$(DEBIAN_BUILD_SCRIPT) \
