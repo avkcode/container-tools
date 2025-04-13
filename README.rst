@@ -136,7 +136,7 @@ Repository Structure
 ::
 
    container-tools/
-   ├── Dockerfile            # Docker environment configuration
+   ├── Dockerfile           # Docker environment configuration
    ├── Makefile             # Build automation
    ├── debian/
    │   ├── debootstrap/     # Debian version configs
