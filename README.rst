@@ -122,8 +122,8 @@ Firecracker requires bootable rootfs image and Linux Kernel. To create rootfs an
    cd firecracker-sandbox
    bash tools/create-debian-rootfs.sh
 
-It should produce `firecracker-rootfs.ext4` and `vmlinux` files. `vm-config.json` is used for VM boot options.
-If you want to compile custom Kernel use tools\download-and-build-kernel.sh script.
+It should produce ``firecracker-rootfs.ext4`` and ``vmlinux`` files. ``vm-config.json`` is used for VM boot options.
+If you want to compile custom Kernel use ``tools\download-and-build-kernel.sh`` script.
 
 2. Configure networking:
 
