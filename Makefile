@@ -22,10 +22,16 @@ help:
 	@echo
 	@echo "Usage: make <target>"
 	@echo
-	@echo " * 'shellcheck' - Bash scripts linter"
-	@echo
-	@echo " * 'check-dependencies' - Check for required tools and dependencies"
-	@echo " * 'clean' - Remove all build artifacts and downloaded files"
+	@echo "  help               - Display this help message"
+	@echo "  all                - Build all Debian images"
+	@echo "  check-dependencies - Verify required tools are installed"
+	@echo "  clean              - Remove all build artifacts and downloads"
+	@echo "  list-vars          - List all Makefile variables and their origins"
+	@echo "  shellcheck         - Validate all bash scripts"
+	@echo "  package   	     - Create tar.gz archive of the directory"
+	@echo "  release            - Create Git tag and GitHub release"
+	@echo "  archive            - Create git archive of HEAD"
+	@echo "  bundle             - Create git bundle of repository"
 	@echo
 	@echo " ============================"
 	@echo "  ** Debian Linux targets ** "
