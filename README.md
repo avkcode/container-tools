@@ -90,6 +90,50 @@ debian11-java-slim-kafka:
 ```
 Profit
 
+---
+## Bootstrapping
+
+[firecracker-sandbox](https://github.com/avkcode/firecracker-sandbox) is a complimentary project. Can you use for clean room bootstrapping:
+1. git clone https://github.com/avkcode/firecracker-sandbox.git
+
+Firecracker requires bootable rootfs image and Linux Kernel. To create rootfs and download prebuilt Kernel execute `create-debian-rootfs.sh`script:
+
+```shell
+bash tools/create-debian-rootfs.sh
+```
+
+It should produce `firecracker-rootfs.ext4` and `vmlinux` files. `vm-config.json` is used for VM boot options.
+
+If you want to compile custom Kernel use tools\download-and-build-kernel.sh script.
+
+2. Set Up Networking
+```bash
+make net-up
+```
+This creates a `tap0` device, assigns an IP address, enables IP forwarding, and sets up NAT.
+
+3. Activate the Firecracker API Socket
+```bash
+make activate
+```
+This creates the Firecracker API socket at `/tmp/firecracker.socket`.
+
+4. Start the MicroVM
+```bash
+make up
+```
+Starts the Firecracker MicroVM using the configuration in `vm-config.json`.
+
+default password & username is `root`
+
+5. Install dependencies:
+```bash
+apt-get install docker.io git make debootstrap sudo unzip curl
+```
+
+6. git clone https://github.com/avkcode/container-tools.git
+
+---
 ## Repository Directory Structure
 
 ### Root Directory
