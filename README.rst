@@ -99,7 +99,9 @@ Clean Room Building with Firecracker
 
 For secure, isolated builds:
 
-1. Set up `Firecracker sandbox https://github.com/avkcode/firecracker-sandbox`_:
+1. Set up Firecracker sandbox:
+
+Visit the Firecracker sandbox repository at https://github.com/avkcode/firecracker-sandbox.
 
 Firecracker requires bootable rootfs image and Linux Kernel. To create rootfs and download prebuilt Kernel execute ``create-debian-rootfs.sh`` script:
 
