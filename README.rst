@@ -96,7 +96,7 @@ To add new components:
 
 Example for adding NodeJS:
 
-.. code-block:: makefile
+.. code-block:: bash
 
 debian11-nodejs:
 	$(PRINT_HEADER)
