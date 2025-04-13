@@ -95,14 +95,17 @@ To add new components:
 3. Add a new target to the Makefile
 
 Example for adding NodeJS:
+
+.. code-block:: makefile
+
 debian11-nodejs:
 	$(PRINT_HEADER)
-	$(DEBIAN_BUILD_SCRIPT) \
-			--name=$@ \
-			--keyring=$(DEBIAN_KEYRING) \
-			--variant=container \
-			--release=stable \
-			--recipes=$(RECIPES)/nodejs/nodejs.sh \
+	$(DEBIAN_BUILD_SCRIPT) \\
+			--name=$@ \\
+			--keyring=$(DEBIAN_KEYRING) \\
+			--variant=container \\
+			--release=stable \\
+			--recipes=$(RECIPES)/nodejs/nodejs.sh \\
 			--scripts=$(SCRIPTS)/security-scan.sh
 
 Clean Room Building with Firecracker
