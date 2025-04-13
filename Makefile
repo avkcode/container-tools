@@ -1,15 +1,17 @@
 # ==============================================================================
-# Phony Targets
+# Makefile Configuration Directives
 # ==============================================================================
-.PHONY: help all check-dependencies shellcheck qemu-user-static \
-        debian-base debian-java debian-java-slim debian-graal \
-        debian-corretto debian-java-slim-maven debian-java-slim-gradle \
-        debian-java-kafka debian-java-slim-kafka clean
 
+# Set 'help' as the default target when running just 'make'
 .DEFAULT_GOAL := help
+
+# Run all recipe lines in one shell (enables using shell variables across lines)
 .ONESHELL:
+
+# Automatically export all variables to recipe shells
 .EXPORT_ALL_VARIABLES:
 
+# Suppress command echoing unless VERBOSE=1 is set
 ifndef VERBOSE
 .SILENT:
 endif
@@ -82,7 +84,17 @@ DEBIAN_KEYRING = $(DEBIAN_KEYS_DIRECTORY)/debian-archive-keyring.gpg
 # ==============================================================================
 # Build Targets
 # ==============================================================================
-all:debian11 debian11-java debian11-java-slim debian11-graal debian11-graal-slim debian11-corretto debian11-java-slim-maven debian11-java-slim-gradle debian11-nodejs debian11-java-slim-kafka debian11-java-kafka
+
+.PHONY: debian11 debian11-java debian11-java-slim debian11-graal \
+        debian11-graal-slim debian11-corretto debian11-java-slim-maven \
+        debian11-java-slim-gradle debian11-nodejs debian11-java-slim-kafka \
+        debian11-java-kafka
+
+.PHONY: all
+all: debian11 debian11-java debian11-java-slim debian11-graal \
+     debian11-graal-slim debian11-corretto debian11-java-slim-maven \
+     debian11-java-slim-gradle debian11-nodejs debian11-java-slim-kafka \
+     debian11-java-kafka
 
 debian11:
 	$(PRINT_HEADER)
