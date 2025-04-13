@@ -100,12 +100,12 @@ Example for adding NodeJS:
 
 debian11-nodejs:
 	$(PRINT_HEADER)
-	$(DEBIAN_BUILD_SCRIPT) \\
-			--name=$@ \\
-			--keyring=$(DEBIAN_KEYRING) \\
-			--variant=container \\
-			--release=stable \\
-			--recipes=$(RECIPES)/nodejs/nodejs.sh \\
+	$(DEBIAN_BUILD_SCRIPT) \
+			--name=$@ \
+			--keyring=$(DEBIAN_KEYRING) \
+			--variant=container \
+			--release=stable \
+			--recipes=$(RECIPES)/nodejs/nodejs.sh \
 			--scripts=$(SCRIPTS)/security-scan.sh
 
 Clean Room Building with Firecracker
