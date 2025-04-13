@@ -94,13 +94,18 @@ To add new components:
 2. Verify artifact URLs and SHA256 checksums
 3. Add a new target to the Makefile
 
-Example for adding Kafka:
+Example for adding NodeJS:
 
 .. code-block:: makefile
-
-   debian11-java-slim-kafka:
-       $(PRINT_HEADER)
-       $(DEBIAN_BUILD_SCRIPT)                --name=$@                --keyring=$(DEBIAN_KEYRING)                --variant=container                --release=stable                --recipes=$(JAVA_RECIPES)/java_slim.sh,$(RECIPES)/kafka/kafka.sh                --scripts=$(SCRIPTS)/security-scan.sh
+debian11-nodejs:
+	$(PRINT_HEADER)
+	$(DEBIAN_BUILD_SCRIPT) \
+			--name=$@ \
+			--keyring=$(DEBIAN_KEYRING) \
+			--variant=container \
+			--release=stable \
+			--recipes=$(RECIPES)/nodejs/nodejs.sh \
+			--scripts=$(SCRIPTS)/security-scan.sh
 
 Clean Room Building with Firecracker
 -----------------------------------
@@ -109,11 +114,15 @@ For secure, isolated builds:
 
 1. Set up Firecracker sandbox:
 
+Firecracker requires bootable rootfs image and Linux Kernel. To create rootfs and download prebuilt Kernel execute `create-debian-rootfs.sh`script:
 .. code-block:: bash
 
    git clone https://github.com/avkcode/firecracker-sandbox.git
    cd firecracker-sandbox
    bash tools/create-debian-rootfs.sh
+
+It should produce `firecracker-rootfs.ext4` and `vmlinux` files. `vm-config.json` is used for VM boot options.
+If you want to compile custom Kernel use tools\download-and-build-kernel.sh script.
 
 2. Configure networking:
 
@@ -158,7 +167,7 @@ All builds include automated security scanning via Trivy in the ``security-scan.
 Contributing
 ------------
 
-Contributions are welcome! Please submit issues or pull requests for:
+Contributions are welcome. Please submit issues or pull requests for:
 
 - New distro support
 - Additional package recipes
