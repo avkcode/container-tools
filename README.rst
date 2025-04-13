@@ -1,196 +1,166 @@
-# Container Tools
+Container Tools
+=============
 
-<table>
-  <tr>
-    <td valign="top" width="100">
-      <img src="https://raw.githubusercontent.com/avkcode/container-tools/refs/heads/main/favicon.svg"
-           alt="Container Tools"
-           width="80">
-    </td>
-    <td valign="middle">
-      Container Tools is a project that provides scripts and utilities to automate the creation of minimal Debian-based root filesystems (rootfs) using debootstrap. It supports customization with specific packages, configurations, and integrates security scanning for containerized environments. Can be easily extend for other distros and projects.
-    </td>
-  </tr>
-</table>
+.. image:: https://raw.githubusercontent.com/avkcode/container-tools/refs/heads/main/favicon.svg
+   :alt: Container Tools Logo
+   :width: 80px
+   :align: right
 
-## Rational
-When building containerized environments using standard Dockerfiles, each customization layer creates:
-- Storage bloat - Every RUN apt-get install creates a new layer, wasting disk space with duplicate dependencies
-- Network inefficiency - Redundant package downloads occur across different images
-- Slow iterations - Rebuilding images requires repeating all previous steps
+Container Tools provides scripts and utilities to automate the creation of minimal Debian-based root filesystems (rootfs) using debootstrap. It supports customization with specific packages, configurations, and integrates security scanning for containerized environments. Easily extensible for other distros and projects.
 
-With this tool one can build:
-- Minimal base images from scratch using debootstrap
-- Precisely including only required components in the initial build
-- Creating specialized variants (Java, Kafka, etc.) from common foundations
+Rationale
+--------
 
-## How it works:
-```
-Usage: make <target>
- ============================
-  ** Debian Linux targets **
- ============================
-|all|
-|debian11|
-|debian11-java|
-|debian11-java-slim|
-|debian11-corretto|
-|debian11-graal|
-|debian11-graal-slim|
-|debian11-java-slim-maven|
-|debian11-java-slim-gradle|
-|debian11-graal-slim-maven|
-|debian11-graal-slim-gradle|
-|debian11-java-kafka|
-|debian11-java-slim-kafka|
-```
+Traditional Dockerfile-based builds suffer from several inefficiencies:
 
-## In the end it will produce the image
-```
-[Image was built successfully]
-::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-Artifact location: debian/dist/debian11-graal-slim/debian11-graal-slim.tar
-Artifact size: 124M
-::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-Image was built successfully!
-Artifact location: debian/dist/debian11-graal-slim/debian11-graal-slim.tar
-To load and run this Docker image, follow these steps:
-Load the Docker image from the .tar file:
-   cat debian/dist/debian11-graal-slim/debian11-graal-slim.tar | docker import - debian/dist/debian11-graal-slim/debian11-graal-slim
-Verify the image was loaded successfully:
-   docker images
-Run the Docker container:
-   docker run -it <IMAGE_NAME>
-   Replace <IMAGE_NAME> with the name of the image loaded in the first step.
-Example:
-   docker run -it debian/dist/debian11-graal-slim/debian11-graal-slim /bin/bash
-::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-Time elapsed: 193
-```
+- **Storage bloat**: Each ``RUN apt-get install`` creates a new layer, wasting disk space with duplicate dependencies
+- **Network inefficiency**: Redundant package downloads across different images
+- **Slow iterations**: Rebuilding images requires repeating all previous steps
 
-## How to extend
-1. Add recipe to recipes/
-2. Make sure that the link to artifact and SHA256 is correct (e.g `sha256sum kafka_2.13-4.0.0.tgz`):
-```bash
-KAFKA_VERSION='4.0.0'
-KAFKA_SHA='7b852e938bc09de10cd96eca3755258c7d25fb89dbdd76305717607e1835e2aa'
-KAFKA_URL="https://downloads.apache.org/kafka/${KAFKA_VERSION}/kafka_2.13-${KAFKA_VERSION}.tgz"
-```
-3. Add target to the Makefile
-```makefile
-debian11-java-slim-kafka:
-	$(PRINT_HEADER)
-	$(DEBIAN_BUILD_SCRIPT) \
-			--name=$@ \
-			--keyring=$(DEBIAN_KEYRING) \
-			--variant=container \
-			--release=stable \
-			--recipes=$(JAVA_RECIPES)/java_slim.sh,$(RECIPES)/kafka/kafka.sh \
-			--scripts=$(SCRIPTS)/security-scan.sh
-```
-Profit
+This tool enables you to:
 
----
+- Build minimal base images from scratch using debootstrap
+- Precisely include only required components in the initial build
+- Create specialized variants (Java, Kafka, etc.) from common foundations
 
-## Bootstrapping
+Features
+--------
 
-[firecracker-sandbox](https://github.com/avkcode/firecracker-sandbox) is a complimentary project. It can be used for clean room bootstrapping, to avoid supply chain "contamination".
+- Lightweight Debian-based rootfs generation
+- Customizable package selection
+- Security scanning integration (Trivy)
+- Support for Java variants (Standard, GraalVM, Corretto)
+- Build tool integration (Maven, Gradle)
+- Apache Kafka support
+- Clean room build capability via Firecracker sandbox
 
-1. git clone https://github.com/avkcode/firecracker-sandbox.git
+Quick Start
+-----------
 
-Firecracker requires bootable rootfs image and Linux Kernel. To create rootfs and download prebuilt Kernel execute `create-debian-rootfs.sh`script:
-```bash
-bash tools/create-debian-rootfs.sh
-```
+Prerequisites
+~~~~~~~~~~~~~
 
-It should produce `firecracker-rootfs.ext4` and `vmlinux` files. `vm-config.json` is used for VM boot options.
+- Linux system (or VM)
+- Docker
+- debootstrap
+- make
+- curl, unzip, sudo
 
-If you want to compile custom Kernel use tools\download-and-build-kernel.sh script.
+Building Images
+~~~~~~~~~~~~~~
 
-2. Set Up Networking
-```bash
-make net-up
-```
-This creates a `tap0` device, assigns an IP address, enables IP forwarding, and sets up NAT.
+.. code-block:: bash
 
-3. Activate the Firecracker API Socket
-```bash
-make activate
-```
-This creates the Firecracker API socket at `/tmp/firecracker.socket`.
+   git clone https://github.com/avkcode/container-tools.git
+   cd container-tools
+   make debian11-java-slim  # Example target
 
-4. Start the MicroVM
-```bash
-make up
-```
-Starts the Firecracker MicroVM using the configuration in `vm-config.json`.
-default password & username is `root`
+Available targets:
 
-5. Install dependencies:
-```bash
-apt-get install docker.io git make debootstrap sudo unzip curl
-```
+::
 
-6. git clone https://github.com/avkcode/container-tools.git
+   debian11
+   debian11-java
+   debian11-java-slim
+   debian11-corretto
+   debian11-graal
+   debian11-graal-slim
+   debian11-java-slim-maven
+   debian11-java-slim-gradle
+   debian11-graal-slim-maven
+   debian11-graal-slim-gradle
+   debian11-java-kafka
+   debian11-java-slim-kafka
 
-In oder to shutdown VM exec `reboot` command.
+Using Built Images
+~~~~~~~~~~~~~~~~~
 
----
+After successful build:
 
-## Repository Directory Structure
+.. code-block:: bash
 
-### Root Directory
-- `Dockerfile` - Docker configuration for building the environment
-- `Makefile` - Build automation with targets for different images
-- `README.md` - Project documentation and usage instructions
-- `tools.mk` - Makefile tools and utilities
-- `Vagrantfile` - Vagrant configuration for development environment
+   # Load the image
+   cat debian/dist/debian11-graal-slim/debian11-graal-slim.tar | docker import - debian11-graal-slim
 
-### debian/
-Contains Debian-specific files for image building
+   # Run the container
+   docker run -it debian11-graal-slim /bin/bash
 
-#### debian/debootstrap/
-Configuration files for different Debian versions:
-- `buster` - Debian 10 (Buster) config
-- `bullseye` - Debian 11 (Bullseye) config  
-- `jessie` - Debian 8 (Jessie) config
-- `stretch` - Debian 9 (Stretch) config
-- `unstable` - Debian Unstable config
-- `wheezy` - Debian 7 (Wheezy) config
+Extending the Tool
+-----------------
 
-#### debian/keys/
-GPG keys for package verification:
-- `buster.gpg` - Key for Debian Buster
-- `unstable.gpg` - Key for Debian Unstable
+To add new components:
 
-#### Key Files:
-- `mkimage.sh` - Main script for building Debian root filesystems
+1. Create a recipe in ``recipes/`` directory
+2. Verify artifact URLs and SHA256 checksums
+3. Add a new target to the Makefile
 
-### recipes/
-Contains installation scripts for different components
+Example for adding Kafka:
 
-#### recipes/java/
-Java-related installation scripts:
-- `java.sh` - Full JDK installation
-- `java_slim.sh` - Slimmed-down JDK installation  
-- `graalvm.sh` - GraalVM installation
-- `graalvm_slim.sh` - Slim GraalVM installation
-- `corretto.sh` - Amazon Corretto JDK
-- `maven.sh` - Apache Maven
-- `gradle.sh` - Gradle build tool
+.. code-block:: makefile
 
-#### recipes/kafka/
-- `kafka.sh` - Apache Kafka installation (added in our solution)
+   debian11-java-slim-kafka:
+       $(PRINT_HEADER)
+       $(DEBIAN_BUILD_SCRIPT)                --name=$@                --keyring=$(DEBIAN_KEYRING)                --variant=container                --release=stable                --recipes=$(JAVA_RECIPES)/java_slim.sh,$(RECIPES)/kafka/kafka.sh                --scripts=$(SCRIPTS)/security-scan.sh
 
-### scripts/
-Post-build maintenance scripts:
-- `security-scan.sh` - Runs Trivy security scanner
+Clean Room Building with Firecracker
+-----------------------------------
 
-### dist/
-Output directory (created during build):
-- Contains final built images in `.tar` format
-- Organized by image name (e.g., `debian11-java-slim/`)
+For secure, isolated builds:
 
-### download/
-Temporary download directory (created during build):
-- Stores downloaded packages and binaries
+1. Set up Firecracker sandbox:
+
+.. code-block:: bash
+
+   git clone https://github.com/avkcode/firecracker-sandbox.git
+   cd firecracker-sandbox
+   bash tools/create-debian-rootfs.sh
+
+2. Configure networking:
+
+.. code-block:: bash
+
+   make net-up
+   make activate
+   make up
+
+3. Install dependencies in the VM:
+
+.. code-block:: bash
+
+   apt-get install docker.io git make debootstrap sudo unzip curl
+
+4. Build your images as usual
+
+Repository Structure
+-------------------
+
+::
+
+   container-tools/
+   ├── Dockerfile            # Docker environment configuration
+   ├── Makefile             # Build automation
+   ├── debian/
+   │   ├── debootstrap/     # Debian version configs
+   │   ├── keys/            # GPG keys for verification
+   │   └── mkimage.sh       # Rootfs builder script
+   ├── recipes/
+   │   ├── java/            # Java variants
+   │   └── kafka/           # Kafka installation
+   ├── scripts/             # Maintenance scripts
+   ├── dist/                # Output images
+   └── download/            # Temporary downloads
+
+Security
+--------
+
+All builds include automated security scanning via Trivy in the ``security-scan.sh`` script.
+
+Contributing
+------------
+
+Contributions are welcome! Please submit issues or pull requests for:
+
+- New distro support
+- Additional package recipes
+- Security improvements
+- Documentation enhancements
