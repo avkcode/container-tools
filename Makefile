@@ -4,7 +4,7 @@
 .PHONY: help all check-dependencies shellcheck qemu-user-static \
         debian-base debian-java debian-java-slim debian-graal \
         debian-corretto debian-java-slim-maven debian-java-slim-gradle \
-        debian-java-kafka clean
+        debian-java-kafka debian-java-slim-kafka clean
 
 .DEFAULT_GOAL := help
 .ONESHELL:
@@ -14,7 +14,7 @@ ifndef VERBOSE
 .SILENT:
 endif
 
-include tools.mk
+include Makefile.inc
 
 #------------------------------------------------------------------------------
 
@@ -50,8 +50,10 @@ help:
 	@echo "|debian11-java-slim-gradle|"
 	@echo "|debian11-graal-slim-maven|"
 	@echo "|debian11-graal-slim-gradle|"
+	@echo	
 	@echo "|debian11-java-kafka|"
 	@echo "|debian11-java-slim-kafka|"
+	@echo	
 	@echo "|debian11-nodejs|"
 
 #------------------------------------------------------------------------------
@@ -76,7 +78,7 @@ DEBIAN_BUILD_SCRIPT = $(DEBIAN_DIR)/mkimage.sh
 DEBIAN_KEYS_DIRECTORY = $(DEBIAN_DIR)/keys
 DEBIAN_KEYRING = $(DEBIAN_KEYS_DIRECTORY)/debian-archive-keyring.gpg
 
-all:debian11 debian11-java debian11-java-slim debian11-graal debian11-graal-slim debian11-corretto debian11-java-slim-maven debian11-java-slim-gradle
+all:debian11 debian11-java debian11-java-slim debian11-graal debian11-graal-slim debian11-corretto debian11-java-slim-maven debian11-java-slim-gradle debian11-nodejs debian11-java-slim-kafka debian11-java-kafka
 
 debian11:
 	$(PRINT_HEADER)
@@ -237,3 +239,44 @@ clean: ## Remove all build artifacts and downloads
 		echo -e "Removing downloaded files..."; \
 		rm -rf $(DOWNLOADS_DIR)/*; \
 	fi
+
+.PHONY: list-vars
+list-vars:
+	@echo "Variable Name       Origin"
+	@echo "-------------------- -----------"
+	@$(foreach var, $(filter-out .% %_FILES, $(.VARIABLES)), \
+		$(if $(filter-out default automatic, $(origin $(var))), \
+			printf "%-20s %s\\n" "$(var)" "$(origin $(var))"; \
+		))
+
+GIT_BRANCH := $(shell git rev-parse --abbrev-ref HEAD)
+GIT_COMMIT := $(shell git rev-parse --short HEAD)
+
+.PHONY: package
+package:
+	@echo "Creating a tar.gz archive of the entire directory..."
+	@DIR_NAME=$$(basename $$(pwd)); \
+	TAR_FILE="$$DIR_NAME.tar.gz"; \
+	tar -czvf $$TAR_FILE .; \
+	echo "Archive created successfully: $$TAR_FILE"
+
+.PHONY: release
+release:
+	@echo "Creating Git tag and releasing on GitHub..."
+	@read -p "Enter the version number (e.g., v1.0.0): " version; \
+	git tag -a $$version -m "Release $$version"; \
+	git push origin $$version; \
+	gh release create $$version --generate-notes
+	@echo "Release $$version created and pushed to GitHub."
+
+.PHONY: archive
+archive:
+	@echo "Creating git archive..."
+	git archive --format=tar.gz --output=archive-$(GIT_BRANCH)-$(GIT_COMMIT).tar.gz HEAD
+	@echo "Archive created: archive-$(GIT_BRANCH)-$(GIT_COMMIT).tar.gz"
+
+.PHONY: bundle
+bundle:
+	@echo "Creating git bundle..."
+	git bundle create bundle-$(GIT_BRANCH)-$(GIT_COMMIT).bundle --all
+	@echo "Bundle created: bundle-$(GIT_BRANCH)-$(GIT_COMMIT).bundle"
