@@ -444,7 +444,7 @@ main() {
   echo "Artifact size: `du --summarize --human-readable "$dist"/"$name".tar | cut --fields 1`"
   echo
   echo "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::"
-  echo "Image was built successfully!"
+  echo "Image was built successfully"
   echo "Artifact location: "$dist"/"$name".tar"
   echo ""
   echo "To load and run this Docker image, follow these steps:"

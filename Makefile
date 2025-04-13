@@ -52,6 +52,7 @@ help:
 	@echo "|debian11-graal-slim-gradle|"
 	@echo "|debian11-java-kafka|"
 	@echo "|debian11-java-slim-kafka|"
+	@echo "|debian11-nodejs|"
 
 #------------------------------------------------------------------------------
 SHELL = /usr/bin/env bash -o pipefail
@@ -197,6 +198,16 @@ debian11-java-slim-kafka:
 			--recipes=$(JAVA_RECIPES)/java_slim.sh,$(RECIPES)/kafka/kafka.sh \
 			--scripts=$(SCRIPTS)/security-scan.sh
 
+
+debian11-nodejs:
+	$(PRINT_HEADER)
+	$(DEBIAN_BUILD_SCRIPT) \
+			--name=$@ \
+			--keyring=$(DEBIAN_KEYRING) \
+			--variant=container \
+			--release=stable \
+			--recipes=$(RECIPES)/nodejs/nodejs.sh \
+			--scripts=$(SCRIPTS)/security-scan.sh
 
 REQUIRED_TOOLS := docker bash grep sed awk debootstrap unzip
 check-dependencies:
