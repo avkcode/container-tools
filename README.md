@@ -94,7 +94,8 @@ Profit
 
 ## Bootstrapping
 
-[firecracker-sandbox](https://github.com/avkcode/firecracker-sandbox) is a complimentary project. Can you use for clean room bootstrapping:
+[firecracker-sandbox](https://github.com/avkcode/firecracker-sandbox) is a complimentary project. It can be used for clean room bootstrapping, to avoid supply chain "contamination".
+
 1. git clone https://github.com/avkcode/firecracker-sandbox.git
 
 Firecracker requires bootable rootfs image and Linux Kernel. To create rootfs and download prebuilt Kernel execute `create-debian-rootfs.sh`script:
