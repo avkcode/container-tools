@@ -31,8 +31,7 @@ Features
 - Security scanning integration (Trivy)
 - Support for Java variants (Standard, GraalVM, Corretto)
 - Build tool integration (Maven, Gradle)
-- Apache Kafka support
-- Clean room build capability via Firecracker sandbox
+- Clean room build via Firecracker sandbox
 
 Quick Start
 -----------
@@ -71,6 +70,7 @@ Available targets:
    debian11-graal-slim-gradle
    debian11-java-kafka
    debian11-java-slim-kafka
+   debian11-nodejs
 
 Using Built Images
 ~~~~~~~~~~~~~~~~~
