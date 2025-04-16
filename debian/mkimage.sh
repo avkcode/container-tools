@@ -308,7 +308,7 @@ if command -v getenforce; then
 fi
 
 # Use podman if available, otherwise fall back to docker
-if ! command -v podman; then
+if command -v podman; then
   warn "Podman will be used for building images"
   podman=docker
 else
@@ -329,12 +329,6 @@ repo_url="http://deb.debian.org/debian"
 sec_repo_url="http://security.debian.org/"
 
 ############################## SCRIPT MAIN ##############################
-
-header "Script args"
-printf '%s\n' "${BASH_ARGV[@]}" "${BASH_SOURCE[0]}" | tac | tr '\n' ' ' && echo
-
-header "Environment variables"
-run printenv
 
 main() {
   timer-on
@@ -449,7 +443,7 @@ main() {
   echo "To load and run this Docker image, follow these steps:"
   echo ""
   echo "Load the Docker image from the .tar file:"
-  echo "   cat "$dist"/"$name".tar | docker import - "$dist"/"$name""
+  echo "   docker import "$dist"/"$name".tar "$name""
   echo ""
   echo "Verify the image was loaded successfully:"
   echo "   docker images"
@@ -459,7 +453,7 @@ main() {
   echo "   Replace <IMAGE_NAME> with the name of the image loaded in the first step."
   echo ""
   echo "Example:"
-  echo "   docker run -it "$dist"/"$name" /bin/bash"
+  echo "   docker run -it "$name" /bin/bash"
   echo "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::"
 
   timer-off

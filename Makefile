@@ -55,34 +55,63 @@ help:
 	@echo "|debian11-java-kafka|"
 	@echo "|debian11-java-slim-kafka|"
 	@echo	
-	@echo "|debian11-nodejs|"
+	@echo "|debian11-nodejs-23.11.0|"
+	@echo
+	@echo "|debian11-python-3.9.18|"
 
 # ==============================================================================
-# Configuration
+# Build Configuration
 # ==============================================================================
-SHELL = /usr/bin/env bash -o pipefail
-.SHELLFLAGS = -ec
 
-export SHELL := /bin/bash
-export CWD := $(shell pwd)
+SHELL := /bin/bash
+.SHELLFLAGS := -o pipefail -ec
 
-SRCDIR := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
-BUILDDIR := .
+THIS_FILE := $(lastword $(MAKEFILE_LIST))
+SRCDIR := $(abspath $(patsubst %/,%,$(dir $(THIS_FILE))))
+DOWNLOAD_DIR := $(SRCDIR)/download
+SCRIPTS_DIR := $(SRCDIR)/scripts
 
-PRINT_HEADER = @echo -e "\n********************[ $@ ]********************\n"
+DEBIAN_DIR := $(SRCDIR)/debian
+DEBIAN_BUILD_SCRIPT := $(DEBIAN_DIR)/mkimage.sh
+DEBIAN_KEYS_DIR := $(DEBIAN_DIR)/keys
+DEBIAN_KEYRING := $(DEBIAN_KEYS_DIR)/debian-archive-keyring.gpg
 
-RECIPES = recipes
-JAVA_RECIPES = $(RECIPES)/java
-JULIA_RECIPES = $(RECIPES)/julia
-SCRIPTS = scripts
+# Validate keyring exists
+ifeq (,$(wildcard $(DEBIAN_KEYRING)))
+  $(error Debian keyring not found at $(DEBIAN_KEYRING))
+endif
 
-DEBIAN_DIR = debian
-DEBIAN_BUILD_SCRIPT = $(DEBIAN_DIR)/mkimage.sh
-DEBIAN_KEYS_DIRECTORY = $(DEBIAN_DIR)/keys
-DEBIAN_KEYRING = $(DEBIAN_KEYS_DIRECTORY)/debian-archive-keyring.gpg
-
+# Build options
 VARIANT ?= container
 RELEASE ?= stable
+
+# Validate VARIANT
+VALID_VARIANTS := container fakechroot minbase
+ifneq (,$(filter-out $(VALID_VARIANTS),$(VARIANT)))
+  $(error Invalid VARIANT '$(VARIANT)'. Must be one of: $(VALID_VARIANTS))
+endif
+
+# Version information
+VERSION := $(shell git describe --tags 2>/dev/null || echo "0.1.0")
+BUILD_DATE := $(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
+GIT_REVISION := $(shell git rev-parse --short HEAD 2>/dev/null || echo "unknown")
+
+# Export for child processes
+export VERSION BUILD_DATE GIT_REVISION
+
+COLOR_RESET := \033[0m
+COLOR_GREEN := \033[32m
+COLOR_YELLOW := \033[33m
+
+# Print header with timestamp and color
+PRINT_HEADER = @printf "$(COLOR_GREEN)\n[%s] %-60s$(COLOR_RESET)\n" "$$(date +'%Y-%m-%d %H:%M:%S')" "Building: $@"
+
+# Recipes
+SCRIPTS := $(SRCDIR)/scripts/
+RECIPES_DIR := $(SRCDIR)/recipes
+JAVA_RECIPES := $(RECIPES_DIR)/java/
+PYTHON_RECIPES := $(RECIPES_DIR)/python/
+NODEJS_RECIPES := $(RECIPES_DIR)/nodejs/
 
 # ==============================================================================
 # Build Targets
@@ -90,14 +119,14 @@ RELEASE ?= stable
 
 .PHONY: debian11 debian11-java debian11-java-slim debian11-graal \
         debian11-graal-slim debian11-corretto debian11-java-slim-maven \
-        debian11-java-slim-gradle debian11-nodejs debian11-java-slim-kafka \
-        debian11-java-kafka
+        debian11-java-slim-gradle debian11-nodejs-23.11.0 debian11-java-slim-kafka \
+        debian11-java-kafka debian11-python-3.9.18
 
 .PHONY: all
 all: debian11 debian11-java debian11-java-slim debian11-graal \
      debian11-graal-slim debian11-corretto debian11-java-slim-maven \
-     debian11-java-slim-gradle debian11-nodejs debian11-java-slim-kafka \
-     debian11-java-kafka
+     debian11-java-slim-gradle debian11-nodejs-23.11.0 debian11-java-slim-kafka \
+     debian11-java-kafka debian11-python-3.9.18
 
 debian11:
 	$(PRINT_HEADER)
@@ -220,15 +249,25 @@ debian11-java-slim-kafka:
 			--scripts=$(SCRIPTS)/security-scan.sh
 
 
-debian11-nodejs:
+debian11-nodejs-23.11.0:
 	$(PRINT_HEADER)
 	$(DEBIAN_BUILD_SCRIPT) \
 			--name=$@ \
 			--keyring=$(DEBIAN_KEYRING) \
 			--variant=$(VARIANT) \
 			--release=$(RELEASE) \
-			--recipes=$(RECIPES)/nodejs/nodejs.sh \
+			--recipes=$(NODEJS_RECIPES)/nodejs.sh \
 			--scripts=$(SCRIPTS)/security-scan.sh
+
+debian11-python-3.9.18:
+	$(PRINT_HEADER)
+	$(DEBIAN_BUILD_SCRIPT) \
+                        --name=$@ \
+                        --keyring=$(DEBIAN_KEYRING) \
+                        --variant=$(VARIANT) \
+                        --release=$(RELEASE) \
+                        --recipes=$(PYTHON_RECIPES)/python.sh \
+                        --scripts=$(SCRIPTS)/security-scan.sh
 
 # ==============================================================================
 # Utility Targets
