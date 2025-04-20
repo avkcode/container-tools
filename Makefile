@@ -269,6 +269,17 @@ debian11-python-3.9.18:
                         --recipes=$(PYTHON_RECIPES)/python.sh \
                         --scripts=$(SCRIPTS)/security-scan.sh
 
+debian11-php-8.2.12:
+	$(PRINT_HEADER)
+	$(DEBIAN_BUILD_SCRIPT) \
+			--name=$@ \
+			--keyring=$(DEBIAN_KEYRING) \
+			--variant=$(VARIANT) \
+			--release=$(RELEASE) \
+			--recipes=$(RECIPES_DIR)/php/php.sh \
+			--scripts=$(SCRIPTS)/security-scan.sh
+
+
 # ==============================================================================
 # Utility Targets
 # ==============================================================================
