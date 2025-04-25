@@ -234,6 +234,11 @@ After signing, you can verify the signatures using cosign:
 Test
 ----
 
+Container-structure-test is a CLI tool for validating container images.
+It ensures images meet configuration, security, and compliance standards by running tests against file structures,
+metadata, environment variables, and commands within the image.
+Ideal for CI/CD pipelines, it helps catch issues early and ensures consistent, reliable container builds.
+
 Install container-structure-test:
 
 .. code-block:: bash
