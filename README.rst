@@ -246,7 +246,7 @@ Test a Single Image with a Specific Config:
 
 .. code-block:: bash
 
-   ./scripts/container_test.py --image 12ef04ba60b2 --config test/debian11-nodejs-23.11.0.yaml
+   ./scripts/container_test.py --image <IMAGE ID> --config test/debian11-nodejs-23.11.0.yaml
 
 
 Security
