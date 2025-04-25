@@ -209,6 +209,44 @@ If using a KMS provider, retrieve the public key with:
 
    cosign public-key --key <provider>://<key>
 
+ Step 5: cosign.py
+
+Sign .tar files in a specific directory:
+
+.. code-block:: bash
+
+   ./cosign.py --directory=path/to/tar/files
+
+Use a Private Key for Signing
+Sign images using the private key generated earlier:
+
+.. code-block:: bash
+
+   ./cosign.py --directory=path/to/tar/files --key=cosign.key
+
+Push Signed Images to a Registry
+Push signed images to a container registry:
+
+.. code-block:: bash
+
+   ./cosign.py --directory=path/to/tar/files --registry=myregistry.com/myrepo
+
+Perform a Dry Run
+Simulate the signing process without executing commands:
+
+.. code-block:: bash
+
+   ./cosign.py --directory=path/to/tar/files --dry-run
+
+Step 5: Verify the Signatures
+
+After signing, you can verify the signatures using cosign:
+
+.. code-block:: bash
+
+   cosign verify <image_name> --key cosign.pub
+
+
 Security
 --------
 
