@@ -1,0 +1,54 @@
+schemaVersion: '2.0.0'
+commandTests:
+  - name: 'node-version'
+    command: 'node'
+    args: ['--version']
+    expectedOutput: ['v23.11.0']
+
+  - name: 'npm-version'
+    command: 'npm'
+    args: ['--version']
+    expectedOutput: ['10.9.2']
+
+  - name: 'npx-version'
+    command: 'npx'
+    args: ['--version']
+    expectedOutput: ['10.9.2']
+
+fileExistenceTests:
+  - name: 'Node Binary'
+    path: '/opt/nodejs/bin/node'
+    shouldExist: true
+    isExecutableBy: 'owner'
+
+  - name: 'NPM Binary'
+    path: '/opt/nodejs/bin/npm'
+    shouldExist: true
+    isExecutableBy: 'owner'
+
+  - name: 'NPX Binary'
+    path: '/opt/nodejs/bin/npx'
+    shouldExist: true
+    isExecutableBy: 'owner'
+
+  - name: 'Symlink for Node'
+    path: '/usr/bin/node'
+    shouldExist: true
+    isExecutableBy: 'owner'
+
+  - name: 'Symlink for NPM'
+    path: '/usr/bin/npm'
+    shouldExist: true
+    isExecutableBy: 'owner'
+
+  - name: 'Symlink for NPX'
+    path: '/usr/bin/npx'
+    shouldExist: true
+    isExecutableBy: 'owner'
+
+licenseTests:
+  - debian: false
+    files:
+      - "/opt/nodejs/LICENSE"
+      - "/opt/nodejs/README.md"
+
