@@ -34,6 +34,7 @@ help:
 	@echo "  release            - Create Git tag and GitHub release"
 	@echo "  archive            - Create git archive of HEAD"
 	@echo "  bundle             - Create git bundle of repository"
+	@echo "  test               - Run structure tests on built container images"
 	@echo
 	@echo " ============================"
 	@echo "  ** Debian Linux targets ** "
@@ -279,6 +280,31 @@ debian11-php-8.2.12:
 			--recipes=$(RECIPES_DIR)/php/php.sh \
 			--scripts=$(SCRIPTS)/security-scan.sh
 
+
+# ==============================================================================
+# Test Targets
+# ==============================================================================
+
+TEST_CONFIG_DIR := $(SRCDIR)/test
+CONTAINER_TEST_SCRIPT := $(SCRIPTS_DIR)/test.py
+
+.PHONY: test
+test: ## Run structure tests on built container images
+	$(PRINT_HEADER)
+	@echo "Running structure tests on container images..."
+	@for image in $(DIST_DIR)/*; do \
+ 		if [ -d "$$image" ]; then \
+ 		image_name=$$(basename $$image); \
+		config_file=$(TEST_CONFIG_DIR)/$$image_name.yaml; \
+		if [ -f "$$config_file" ]; then \
+			echo "Testing image: $$image_name with config: $$config_file"; \
+			$(CONTAINER_TEST_SCRIPT) --image $$image_name --config $$config_file; \
+		else \
+                	echo "No test config found for image: $$image_name"; \
+            	fi; \
+        	fi; \
+    	done
+	@echo "All tests completed."
 
 # ==============================================================================
 # Utility Targets
