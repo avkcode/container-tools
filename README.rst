@@ -168,9 +168,40 @@ Repository Structure
 Signing
 -----------------------------------
 
+GPG
+
+Sign .tar Files
+
+To sign .tar files, provide the directory or file path along with your GPG key ID:
+
+.. code-block:: bash
+
+   ./scripts/gpg.py --directory /path/to/tar/files --gpg-key-id YOUR_KEY_ID
+
+The script generates an ASCII-armored signature file (.asc) for each .tar file.
+If a signature file already exists, the script prompts to overwrite it.
+
+Verify .tar Files
+To verify .tar files, use the --verify flag:
+
+.. code-block:: bash
+
+   ./scripts/gpg.py --directory /path/to/tar/files --verify
+
+By default, the script looks for a .asc signature file with the same name as the .tar file.
+To specify a custom signature file, use the --sig-file option:
+
+.. code-block:: bash
+
+   ./scripts/gpg.py --directory /path/to/file.tar --verify --sig-file /path/to/signature.asc
+
+
+Cosign
+
 Step 1: Generate Key Pair
 
 Run the following command to generate a private and public key pair:
+
 .. code-block:: bash
 
    cosign generate-key-pair
