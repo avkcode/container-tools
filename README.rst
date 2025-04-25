@@ -165,9 +165,6 @@ Repository Structure
    ├── dist/                # Output images
    └── download/            # Temporary downloads
 
-Signing
------------------------------------
-
 GPG
 ---
 
