@@ -173,15 +173,15 @@ Step 1: Generate Key Pair
 Run the following command to generate a private and public key pair:
 .. code-block:: bash
 
-cosign generate-key-pair
+   cosign generate-key-pair
 
 You’ll be prompted to enter and confirm a password for the private key.
 Two files will be created:
 
 .. code-block:: bash
 
-cosign.key (private key)
-cosign.pub (public key)
+   cosign.key (private key)
+   cosign.pub (public key)
 
 Step 2: (Optional) Use Environment Variable for Password
 
@@ -189,8 +189,8 @@ To avoid interactive password prompts, set the COSIGN_PASSWORD environment varia
 
 .. code-block:: bash
 
-export COSIGN_PASSWORD="your_password"
-cosign generate-key-pair
+   export COSIGN_PASSWORD="your_password"
+   cosign generate-key-pair
 
 Step 3: Generate Keys with KMS (Optional)
 
@@ -198,8 +198,8 @@ For key management using a KMS provider, use the --kms flag:
 
 .. code-block:: bash
 
-cosign generate-key-pair --kms <provider>://<key>
-cosign generate-key-pair --kms aws-kms://alias/my-cosign-key
+   cosign generate-key-pair --kms <provider>://<key>
+   cosign generate-key-pair --kms aws-kms://alias/my-cosign-key
 
 Step 4: Retrieve Public Key (KMS Only)
 
@@ -207,7 +207,7 @@ If using a KMS provider, retrieve the public key with:
 
 .. code-block:: bash
 
-cosign public-key --key <provider>://<key>
+   cosign public-key --key <provider>://<key>
 
 Security
 --------
