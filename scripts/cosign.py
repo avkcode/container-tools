@@ -42,33 +42,79 @@ def find_tar_files(directory):
         logger.warning(f"No .tar files found in directory: {directory}")
     return tar_files
 
+def is_docker_archive(tar_file):
+    """Check if the tar file is a Docker archive (created with docker save)."""
+    try:
+        contents = run_command(f"tar tf {tar_file}")
+        return 'manifest.json' in contents or 'repositories' in contents
+    except Exception:
+        return False
+
 def sign_image(tar_file, key=None, registry=None, dry_run=False):
     """Sign a tar archive image using cosign."""
     try:
-        # Load the tar archive into Docker as an image
-        image_name = tar_file.stem
-        logger.info(f"Importing tar file: {tar_file} as image: {image_name}")
-        run_command(f"docker import {tar_file} {image_name}", dry_run=dry_run)
+        image_name = Path(tar_file).stem
+        temp_tag = f"temp_{image_name}:latest"
+        final_tag = f"{registry}/{image_name}:latest" if registry else f"{image_name}:latest"
 
-        # Sign the image using cosign
-        logger.info(f"Signing image: {image_name}")
-        if key:
-            run_command(f"cosign sign --key {key} {image_name}", dry_run=dry_run)
+        # Determine if this is a Docker archive or filesystem tarball
+        if is_docker_archive(tar_file):
+            logger.info(f"Loading Docker archive: {tar_file}")
+            run_command(f"docker load -i {tar_file}", dry_run=dry_run)
+            
+            # Get the loaded image tag
+            load_output = run_command(f"docker load -i {tar_file}", dry_run=dry_run)
+            loaded_tag = None
+            for line in load_output.split('\n'):
+                if 'Loaded image:' in line:
+                    loaded_tag = line.split('Loaded image:')[-1].strip()
+                    break
+            
+            if not loaded_tag:
+                raise Exception("Could not determine loaded image tag")
+            
+            # Tag the image with our desired name
+            logger.info(f"Tagging image: {loaded_tag} as: {final_tag}")
+            run_command(f"docker tag {loaded_tag} {final_tag}", dry_run=dry_run)
         else:
-            run_command(f"cosign sign {image_name}", dry_run=dry_run)
+            logger.info(f"Importing filesystem tarball: {tar_file} as {final_tag}")
+            run_command(f"docker import {tar_file} {final_tag}", dry_run=dry_run)
 
-        # Push the signed image to the registry if specified
+        # Push to registry if specified
         if registry:
-            tagged_image = f"{registry}/{image_name}"
-            logger.info(f"Tagging image: {image_name} as: {tagged_image}")
-            run_command(f"docker tag {image_name} {tagged_image}", dry_run=dry_run)
-            logger.info(f"Pushing image: {tagged_image}")
-            run_command(f"docker push {tagged_image}", dry_run=dry_run)
-            run_command(f"cosign attach signature --signature {tagged_image}", dry_run=dry_run)
+            logger.info(f"Pushing image: {final_tag}")
+            run_command(f"docker push {final_tag}", dry_run=dry_run)
+        
+        # Get the image digest
+        logger.info(f"Getting digest for image: {final_tag}")
+        inspect_output = run_command(f"docker inspect {final_tag} --format='{{{{.RepoDigests}}}}'", dry_run=dry_run)
+        if not inspect_output or inspect_output == '[]':
+            # If no digest available (local image not pushed), create one
+            if registry:
+                raise Exception("Image was not properly pushed to registry")
+            else:
+                # For local images, we'll use the image ID
+                inspect_output = run_command(f"docker inspect {final_tag} --format='{{{{.Id}}}}'", dry_run=dry_run)
+                image_reference = inspect_output.strip()
+        else:
+            # Extract the digest from the RepoDigests output
+            image_reference = inspect_output.strip("[]'").split('@')[-1]
 
-        logger.info(f"Successfully signed image: {image_name}")
+        # Sign the image using cosign with the digest
+        logger.info(f"Signing image digest: {image_reference}")
+        if key:
+            sign_cmd = f"cosign sign --key {key} {image_reference}"
+        else:
+            logger.warning("Using keyless signing. Ensure COSIGN_EXPERIMENTAL=1 is set.")
+            sign_cmd = f"cosign sign {image_reference}"
+        
+        run_command(sign_cmd, dry_run=dry_run)
+        
+        logger.info(f"Successfully signed image: {image_reference}")
+        
     except Exception as e:
         logger.error(f"Failed to sign image: {tar_file}. Error: {e}")
+        raise
 
 def main():
     parser = argparse.ArgumentParser(description="Sign tar archive images using cosign.")
