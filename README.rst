@@ -171,43 +171,43 @@ Signing
 Step 1: Generate Key Pair
 
 Run the following command to generate a private and public key pair:
-::
+.. code-block:: bash
+
 cosign generate-key-pair
 
 You’ll be prompted to enter and confirm a password for the private key.
 Two files will be created:
-::
+
+.. code-block:: bash
+
 cosign.key (private key)
 cosign.pub (public key)
 
 Step 2: (Optional) Use Environment Variable for Password
 
 To avoid interactive password prompts, set the COSIGN_PASSWORD environment variable:
-::
+
+.. code-block:: bash
+
 export COSIGN_PASSWORD="your_password"
 cosign generate-key-pair
 
 Step 3: Generate Keys with KMS (Optional)
 
 For key management using a KMS provider, use the --kms flag:
-::
+
+.. code-block:: bash
+
 cosign generate-key-pair --kms <provider>://<key>
 cosign generate-key-pair --kms aws-kms://alias/my-cosign-key
 
 Step 4: Retrieve Public Key (KMS Only)
 
 If using a KMS provider, retrieve the public key with:
-::
+
+.. code-block:: bash
+
 cosign public-key --key <provider>://<key>
-
-Step 5: Sign an Image
-
-Use the private key to sign an image:
-::
-cosign sign --key cosign.key <image_name>
-Enter the password if not using COSIGN_PASSWORD.
-The signature will be pushed to the registry.
-You’ve created and used a key pair for cosign.
 
 Security
 --------
