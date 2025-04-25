@@ -247,7 +247,7 @@ Install container-structure-test:
    chmod +x container-structure-test-linux-amd64
    sudo mv container-structure-test-linux-amd64 /usr/local/bin/container-structure-test
 
-Test a Single Image with a Specific Config:
+Test a single image with a specific config:
 
 .. code-block:: bash
 
