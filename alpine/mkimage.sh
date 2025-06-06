@@ -137,6 +137,11 @@ if [[ "$(uname -s)" != "Linux" ]]; then
   die "GNU/Linux is the only supported OS"
 fi
 
+# Check for Vagrant environment
+if [[ -d /vagrant ]]; then
+  info "Vagrant environment detected"
+fi
+
 # Check if the script is run as root
 if [[ "$EUID" != "0" ]]; then
   die "${BASH_SOURCE[0]} requires root privileges"
