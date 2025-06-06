@@ -3,51 +3,19 @@
 import os
 import subprocess
 import argparse
-import logging
 from pathlib import Path
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(message)s",
-    handlers=[logging.StreamHandler()],
-)
-logger = logging.getLogger(__name__)
-
-def run_command(command, cwd=None, dry_run=False):
-    """Run a shell command and return its output."""
-    try:
-        logger.debug(f"Running command: {command}")
-        if dry_run:
-            logger.info(f"[Dry Run] Skipping execution of: {command}")
-            return ""
-        result = subprocess.run(
-            command,
-            shell=True,
-            check=True,
-            text=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            cwd=cwd,
-        )
-        logger.debug(f"Command output: {result.stdout.strip()}")
-        return result.stdout.strip()
-    except subprocess.CalledProcessError as e:
-        logger.error(f"Command failed: {e.stderr}")
-        raise
-
-def find_tar_files(directory):
-    """Find all .tar files in the specified directory."""
-    tar_files = list(Path(directory).rglob("*.tar"))
-    if not tar_files:
-        logger.warning(f"No .tar files found in directory: {directory}")
-    return tar_files
+# Import common utilities
+from utils import logger, run_command, find_tar_files, check_program_installed
 
 def is_valid_tar_file(tar_file):
     """Check if the file is a valid tar archive."""
     try:
         # Use `tar tf` to list contents; if it fails, it's not a valid tar file
-        run_command(f"tar tf {tar_file}")
+        stdout, stderr = run_command(f"tar tf {tar_file}")
+        if stderr:
+            logger.warning(f"File is not a valid tar archive: {tar_file}")
+            return False
         return True
     except Exception:
         logger.warning(f"File is not a valid tar archive: {tar_file}")
@@ -169,12 +137,7 @@ def main():
         return
 
     # Check if GPG is installed
-    try:
-        run_command("gpg --version", dry_run=args.dry_run)
-    except Exception:
-        logger.error(
-            "GPG is not installed. To install GPG, visit https://gnupg.org/download/"
-        )
+    if not check_program_installed("gpg", "https://gnupg.org/download/"):
         exit(1)
 
     # Determine if the input is a file or directory

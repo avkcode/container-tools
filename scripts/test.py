@@ -3,39 +3,10 @@
 import os
 import subprocess
 import argparse
-import logging
 from pathlib import Path
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(message)s",
-    handlers=[logging.StreamHandler()],
-)
-logger = logging.getLogger(__name__)
-
-def run_command(command, cwd=None, dry_run=False):
-    """Run a shell command and return its output."""
-    try:
-        logger.debug(f"Running command: {command}")
-        if dry_run:
-            logger.info(f"[Dry Run] Skipping execution of: {command}")
-            return "", ""
-        result = subprocess.run(
-            command,
-            shell=True,
-            check=False,  # Allow non-zero exit codes to capture stderr
-            text=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            cwd=cwd,
-        )
-        logger.debug(f"Command stdout: {result.stdout.strip()}")
-        logger.debug(f"Command stderr: {result.stderr.strip()}")
-        return result.stdout.strip(), result.stderr.strip()
-    except Exception as e:
-        logger.error(f"Command failed: {e}")
-        raise
+# Import common utilities
+from utils import logger, run_command, check_program_installed
 
 def validate_image(image_id):
     """Check if the Docker image exists locally."""
@@ -128,12 +99,8 @@ def main():
         return
 
     # Check if container-structure-test is installed
-    try:
-        run_command("container-structure-test version", dry_run=args.dry_run)
-    except Exception:
-        logger.error(
-            "container-structure-test is not installed. To install, visit https://github.com/GoogleContainerTools/container-structure-test"
-        )
+    if not check_program_installed("container-structure-test", 
+                                  "https://github.com/GoogleContainerTools/container-structure-test"):
         exit(1)
 
     # Validate the Docker image
