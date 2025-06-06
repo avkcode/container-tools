@@ -1,0 +1,26 @@
+schemaVersion: "2.0.0"
+
+fileExistenceTests:
+  - name: "Node.js binary"
+    path: "/usr/bin/node"
+    shouldExist: true
+    permissions: "-rwxr-xr-x"
+  - name: "NPM binary"
+    path: "/usr/bin/npm"
+    shouldExist: true
+    permissions: "-rwxr-xr-x"
+
+commandTests:
+  - name: "Node.js version"
+    command: "node"
+    args: ["--version"]
+    expectedOutput: ["v.*"]
+  - name: "NPM version"
+    command: "npm"
+    args: ["--version"]
+    expectedOutput: [".*"]
+
+metadataTest:
+  env:
+    - key: "PATH"
+      value: "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"

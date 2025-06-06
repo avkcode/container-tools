@@ -1,0 +1,26 @@
+schemaVersion: "2.0.0"
+
+fileExistenceTests:
+  - name: "Java binary"
+    path: "/usr/bin/java"
+    shouldExist: true
+    permissions: "-rwxr-xr-x"
+  - name: "Javac binary"
+    path: "/usr/bin/javac"
+    shouldExist: true
+    permissions: "-rwxr-xr-x"
+
+commandTests:
+  - name: "Java version"
+    command: "java"
+    args: ["-version"]
+    expectedError: ["openjdk version \"17.*"]
+  - name: "Javac version"
+    command: "javac"
+    args: ["-version"]
+    expectedOutput: ["javac 17.*"]
+
+metadataTest:
+  env:
+    - key: "PATH"
+      value: "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
