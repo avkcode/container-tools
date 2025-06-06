@@ -31,7 +31,7 @@ Features
 - Security scanning integration (Trivy)
 - Support for Java variants (Standard, GraalVM, Corretto)
 - Build tool integration (Maven, Gradle)
-- Clean room build via Firecracker sandbox
+- Clean host build via Firecracker sandbox
 
 Quick Start
 -----------
@@ -110,7 +110,7 @@ To add new components:
 2. Verify artifact URLs and SHA256 checksums
 3. Add a new target to the Makefile
 
-Clean Room Building with Firecracker
+Clean Host Building with Firecracker
 -----------------------------------
 
 For secure, isolated builds:

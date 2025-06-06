@@ -1,3 +1,4 @@
 debian/dist
 download
 *.tar.gz
+.aider*
