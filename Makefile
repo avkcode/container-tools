@@ -5,6 +5,10 @@
 # Set 'help' as the default target when running just 'make'
 .DEFAULT_GOAL := help
 
+# Create examples directory structure
+examples-dir:
+	@mkdir -p examples/{debian,java,nodejs,kafka,security,testing}
+
 # Run all recipe lines in one shell (enables using shell variables across lines)
 .ONESHELL:
 

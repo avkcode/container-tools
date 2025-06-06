@@ -253,6 +253,18 @@ Test a single image with a specific config:
 
    ./scripts/container_test.py --image <IMAGE ID> --config test/debian11-nodejs-23.11.0.yaml
 
+Examples
+--------
+
+For practical examples of how to use Container Tools, see the `examples/` directory:
+
+- Debian image customization
+- Java application containerization
+- Security signing and verification
+- Container structure testing
+
+Each example includes step-by-step instructions and sample commands.
+
 
 Security
 --------
