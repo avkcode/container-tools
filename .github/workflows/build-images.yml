@@ -1,0 +1,56 @@
+name: Build all images
+
+on:
+  push:
+    branches:
+      - "**"
+    tags:
+      - "v*"
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: build-images-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build Debian images
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - debian11
+          - debian11-java
+          - debian11-java-slim
+          - debian11-graal
+          - debian11-graal-slim
+          - debian11-corretto
+          - debian11-java-slim-maven
+          - debian11-java-slim-gradle
+          - debian11-nodejs-23.11.0
+          - debian11-python-3.9.18
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build image via Makefile target
+        shell: bash
+        run: |
+          set -euxo pipefail
+          make "${{ matrix.target }}"
+
+      - name: Upload built image tarballs
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.target }}
+          path: debian/dist/${{ matrix.target }}/
+          if-no-files-found: warn
