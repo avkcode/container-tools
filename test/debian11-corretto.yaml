@@ -1,0 +1,7 @@
+schemaVersion: '2.0.0'
+
+commandTests:
+  - name: 'corretto java version'
+    command: ['bash', '-lc', 'java -version']
+    exitCode: 0
+    expectedError: ['.*Corretto.*']

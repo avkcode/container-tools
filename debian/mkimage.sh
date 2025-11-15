@@ -431,9 +431,9 @@ main() {
       run cp --archive "$line" "$target/tmp/$script_name"
       run chmod +x "$target/tmp/$script_name"
       if [[ -x "$target/bin/bash" ]]; then
-        run chroot "$target" env DEBIAN_FRONTEND=noninteractive /bin/bash -o pipefail -ec "/tmp/$script_name"
+        run chroot "$target" env DEBIAN_FRONTEND=noninteractive /bin/bash -o pipefail -ec "export JAVA_HOME=/tmp/jdk; export LD_LIBRARY_PATH=/tmp/jdk/lib:/tmp/jdk/lib/jli:\$LD_LIBRARY_PATH; /tmp/$script_name"
       else
-        run chroot "$target" env DEBIAN_FRONTEND=noninteractive /bin/sh -ec "/tmp/$script_name"
+        run chroot "$target" env DEBIAN_FRONTEND=noninteractive /bin/sh -ec "export JAVA_HOME=/tmp/jdk; export LD_LIBRARY_PATH=/tmp/jdk/lib:/tmp/jdk/lib/jli:\$LD_LIBRARY_PATH; /tmp/$script_name"
       fi
       run rm --force "$target/tmp/$script_name"
     done < <(print-array ${recipes[@]})

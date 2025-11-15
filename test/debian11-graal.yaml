@@ -1,0 +1,10 @@
+schemaVersion: '2.0.0'
+
+commandTests:
+  - name: 'gu version'
+    command: ['bash', '-lc', 'gu --version']
+    exitCode: 0
+
+  - name: 'native-image version'
+    command: ['bash', '-lc', 'native-image --version']
+    exitCode: 0

@@ -1,0 +1,12 @@
+schemaVersion: '2.0.0'
+
+commandTests:
+  - name: 'java version'
+    command: ['bash', '-lc', 'java -version']
+    exitCode: 0
+    expectedError: ['.*version.*']
+
+fileExistenceTests:
+  - name: '/usr/bin/java exists'
+    filepath: '/usr/bin/java'
+    shouldExist: true
