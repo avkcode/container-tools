@@ -1,55 +1,57 @@
 #!/usr/bin/env bash
+set -o errexit
+set -o pipefail
+set -o nounset
 
 # Node.js Current (23.x) version
 NODE_VERSION="${NODE_VERSION:-23.11.0}"
 NODE_SHA="${NODE_SHA:-fa9ae28d8796a6cfb7057397e1eea30ca1c61002b42b8897f354563a254e7cf5}"
 NODE_URL="${NODE_URL:-https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz}"
 
-nodejs() {
-    # Install required tools inside target chroot (avoid host modifications)
-    run chroot "$target" apt-get update
-    run chroot "$target" apt-get install -y --no-install-recommends xz-utils ca-certificates
-    
-    # Download Node.js
-    if [[ ! -f ${DOWNLOAD}/node-v${NODE_VERSION}.tar.xz ]]; then
-        download ${NODE_URL} node-v${NODE_VERSION}.tar.xz ${DOWNLOAD}
-    fi
-    
-    # Verify checksum
-    check_sum ${NODE_SHA} ${DOWNLOAD}/node-v${NODE_VERSION}.tar.xz
+install_nodejs() {
+    echo "==> Installing prerequisites"
+    apt-get update
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        ca-certificates \
+        curl \
+        xz-utils
 
-    # Install Node.js
-    run mkdir -p "$target"/opt/nodejs
-    run tar -xJf ${DOWNLOAD}/node-v${NODE_VERSION}.tar.xz \
-       --strip-components=1 \
-       --directory "$target"/opt/nodejs
+    echo "==> Downloading Node.js ${NODE_VERSION}"
+    tmp_tar="/tmp/node-v${NODE_VERSION}-linux-x64.tar.xz"
+    curl --fail --location --silent --show-error --output "${tmp_tar}" "${NODE_URL}"
 
-    # Verify the binaries exist before creating symlinks
-    if [[ ! -f "$target"/opt/nodejs/bin/node ]]; then
-        die "Node.js binary not found after extraction"
+    echo "==> Verifying checksum"
+    if ! echo "${NODE_SHA}  ${tmp_tar}" | sha256sum --check --status; then
+        echo "ERROR: Node.js checksum verification failed" >&2
+        exit 1
     fi
 
-    # Create symlinks using absolute paths
-    run ln -sf /opt/nodejs/bin/node "$target"/usr/bin/node
-    run ln -sf /opt/nodejs/bin/npm "$target"/usr/bin/npm
-    run ln -sf /opt/nodejs/bin/npx "$target"/usr/bin/npx
+    echo "==> Installing Node.js to /opt/nodejs"
+    mkdir -p /opt/nodejs
+    tar -xJf "${tmp_tar}" --strip-components=1 --directory /opt/nodejs
 
-    # Verify installation by calling the absolute path
-    if ! chroot "$target" /opt/nodejs/bin/node --version; then
-        die "Node.js verification failed"
-    fi
+    echo "==> Creating symlinks"
+    mkdir -p /usr/local/bin
+    ln -sf /opt/nodejs/bin/node /usr/local/bin/node
+    ln -sf /opt/nodejs/bin/npm /usr/local/bin/npm
+    ln -sf /opt/nodejs/bin/npx /usr/local/bin/npx
 
-    # Clean up apt cache and temporary files inside target
-    run chroot "$target" apt-get purge -y xz-utils
-    run chroot "$target" apt-get autoremove -y
-    run chroot "$target" apt-get clean
-    run rm -rf "$target"/var/lib/apt/lists/*
-
-    # Write environment variables to profile.d for container runtime
-    run install -d -m 0755 "$target/etc/profile.d"
-    cat > "$target/etc/profile.d/nodejs.sh" <<'EOF'
+    echo "==> Writing /etc/profile.d/nodejs.sh"
+    mkdir -p /etc/profile.d
+    cat > /etc/profile.d/nodejs.sh <<'EOF'
 export NODE_HOME=/opt/nodejs
-export PATH=$NODE_HOME/bin:$PATH
+export PATH="$NODE_HOME/bin:$PATH"
 EOF
-    run chmod 644 "$target/etc/profile.d/nodejs.sh"
+    chmod 644 /etc/profile.d/nodejs.sh
+
+    echo "==> Verifying installation"
+    /opt/nodejs/bin/node --version >/dev/null
+
+    echo "==> Cleanup"
+    DEBIAN_FRONTEND=noninteractive apt-get purge -y xz-utils curl || true
+    DEBIAN_FRONTEND=noninteractive apt-get autoremove -y
+    apt-get clean
+    rm -rf /var/lib/apt/lists/* "${tmp_tar}"
 }
+
+install_nodejs
