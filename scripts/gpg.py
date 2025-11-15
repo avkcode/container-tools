@@ -3,6 +3,7 @@
 import os
 import subprocess
 import argparse
+import getpass
 from pathlib import Path
 
 # Import common utilities
@@ -11,9 +12,9 @@ from utils import logger, run_command, find_tar_files, check_program_installed
 def is_valid_tar_file(tar_file):
     """Check if the file is a valid tar archive."""
     try:
-        # Use `tar tf` to list contents; if it fails, it's not a valid tar file
-        stdout, stderr = run_command(f"tar tf {tar_file}")
-        if stderr:
+        # Validate via tar -tf and check return code
+        stdout, stderr, rc = run_command(["tar", "-tf", str(tar_file)])
+        if rc != 0:
             logger.warning(f"File is not a valid tar archive: {tar_file}")
             return False
         return True
@@ -21,7 +22,7 @@ def is_valid_tar_file(tar_file):
         logger.warning(f"File is not a valid tar archive: {tar_file}")
         return False
 
-def sign_tarball_with_gpg(tar_file, gpg_key_id, passphrase=None, dry_run=False):
+def sign_tarball_with_gpg(tar_file, gpg_key_id, passphrase=None, dry_run=False, force=False):
     """Sign a tarball using GPG."""
     try:
         signature_file = f"{tar_file}.asc"  # Default to .asc for ASCII-armored signatures
@@ -29,31 +30,61 @@ def sign_tarball_with_gpg(tar_file, gpg_key_id, passphrase=None, dry_run=False):
 
         # Check if the signature file already exists
         if Path(signature_file).exists():
-            overwrite = input(f"File '{signature_file}' exists. Overwrite? (y/N) ").strip().lower()
-            if overwrite != "y":
-                logger.info(f"Skipping signing of {tar_file}.")
-                return
+            if not force:
+                overwrite = input(f"File '{signature_file}' exists. Overwrite? (y/N) ").strip().lower()
+                if overwrite != "y":
+                    logger.info(f"Skipping signing of {tar_file}.")
+                    return
+                else:
+                    try:
+                        Path(signature_file).unlink()
+                    except Exception:
+                        pass
+            else:
+                logger.info(f"--force specified. Overwriting existing signature: {signature_file}")
+                try:
+                    Path(signature_file).unlink()
+                except Exception:
+                    pass
 
-        # Construct the GPG signing command
-        gpg_cmd = ["gpg", "--detach-sign", "--armor"]
+        # Construct the GPG signing command (avoid passing secrets via CLI)
+        gpg_cmd = ["gpg", "--detach-sign", "--armor", "--batch", "--pinentry-mode", "loopback"]
         if gpg_key_id:
             gpg_cmd.extend(["--local-user", gpg_key_id])
-        if passphrase:
-            gpg_cmd.extend(["--batch", "--pinentry-mode", "loopback", "--passphrase", passphrase])
+        # Write output explicitly to avoid interactive overwrite prompts
+        gpg_cmd.extend(["--output", str(signature_file)])
 
-        gpg_cmd.append(str(tar_file))
+        base_cmd_str = " ".join([c for c in gpg_cmd + [str(tar_file)] if c])
 
         # Execute the GPG command
         if dry_run:
-            logger.info(f"[Dry Run] Skipping execution of: {' '.join(gpg_cmd)}")
+            logger.info(f"[Dry Run] Skipping execution of: {base_cmd_str}")
         else:
-            result = subprocess.run(
-                gpg_cmd,
-                check=True,
-                text=True,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-            )
+            def run_gpg_with_pass(pw):
+                cmd = list(gpg_cmd)
+                if pw is not None:
+                    cmd.extend(["--passphrase-fd", "0"])
+                return subprocess.run(
+                    cmd + [str(tar_file)],
+                    check=False,
+                    text=True,
+                    input=(pw + "\n") if pw is not None else None,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                )
+
+            result = None
+            if passphrase:
+                # Use provided passphrase securely via stdin
+                result = run_gpg_with_pass(passphrase)
+            else:
+                # First attempt without a passphrase
+                result = run_gpg_with_pass(None)
+                if result.returncode != 0 and "passphrase" in result.stderr.lower():
+                    # Prompt securely if a passphrase is required
+                    pw = getpass.getpass("Enter GPG key passphrase: ")
+                    result = run_gpg_with_pass(pw)
+
             if result.returncode != 0:
                 raise Exception(f"GPG signing failed: {result.stderr}")
 
@@ -127,6 +158,11 @@ def main():
         action="store_true",
         help="Perform a dry run without executing commands.",
     )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Overwrite existing signature files without prompting.",
+    )
 
     # Parse arguments
     args = parser.parse_args()
@@ -176,6 +212,7 @@ def main():
                 gpg_key_id=args.gpg_key_id,
                 passphrase=args.passphrase,
                 dry_run=args.dry_run,
+                force=args.force,
             )
 
     logger.info("All tarballs have been processed successfully.")
