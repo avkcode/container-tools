@@ -87,6 +87,7 @@ THIS_FILE := $(lastword $(MAKEFILE_LIST))
 SRCDIR := $(abspath $(patsubst %/,%,$(dir $(THIS_FILE))))
 DOWNLOAD_DIR := $(SRCDIR)/download
 SCRIPTS_DIR := $(SRCDIR)/scripts
+DOCKER_CMD ?= docker
 
 # Debian configuration
 DEBIAN_DIR := $(SRCDIR)/debian
@@ -156,6 +157,7 @@ ALPINE_RECIPES := $(RECIPES_DIR)/alpine/
         debian11-java-kafka debian11-python-3.9.18
 
 .PHONY: all all-debian all-alpine
+.PHONY: help examples-dir check-dependencies clean list-vars debian11-graal-slim-maven debian11-graal-slim-gradle debian11-php-8.2.12
 all: all-debian all-alpine
 
 all-debian: debian11 debian11-java debian11-java-slim debian11-graal \
@@ -380,6 +382,10 @@ test: ## Run structure tests on built container images
 		config_file=$(TEST_CONFIG_DIR)/$$image_name.yaml; \
 		if [ -f "$$config_file" ]; then \
 			echo "Testing image: $$image_name with config: $$config_file"; \
+			if ! $(DOCKER_CMD) image inspect $$image_name >/dev/null 2>&1; then \
+				echo "Docker image '$$image_name' not found. Importing from tar..."; \
+				$(DOCKER_CMD) import "$(DIST_DIR)/$$image_name/$$image_name.tar" "$$image_name"; \
+			fi; \
 			$(CONTAINER_TEST_SCRIPT) --image $$image_name --config $$config_file; \
 		else \
                 	echo "No test config found for image: $$image_name"; \

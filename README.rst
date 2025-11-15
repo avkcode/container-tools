@@ -203,28 +203,28 @@ Sign .tar files in a specific directory:
 
 .. code-block:: bash
 
-   ./cosign.py --directory=path/to/tar/files
+   ./scripts/cosign.py --directory=path/to/tar/files
 
 Use a Private Key for Signing
 Sign images using the private key generated earlier:
 
 .. code-block:: bash
 
-   ./cosign.py --directory=path/to/tar/files --key=cosign.key
+   ./scripts/cosign.py --directory=path/to/tar/files --key=cosign.key
 
 Push Signed Images to a Registry
 Push signed images to a container registry:
 
 .. code-block:: bash
 
-   ./cosign.py --directory=path/to/tar/files --registry=myregistry.com/myrepo
+   ./scripts/cosign.py --directory=path/to/tar/files --registry=myregistry.com/myrepo
 
 Perform a Dry Run
 Simulate the signing process without executing commands:
 
 .. code-block:: bash
 
-   ./cosign.py --directory=path/to/tar/files --dry-run
+   ./scripts/cosign.py --directory=path/to/tar/files --dry-run
 
 Step 5: Verify the Signatures
 
@@ -254,7 +254,7 @@ Test a single image with a specific config:
 
 .. code-block:: bash
 
-   ./scripts/container_test.py --image <IMAGE ID> --config test/debian11-nodejs-23.11.0.yaml
+   ./scripts/test.py --image <IMAGE ID> --config test/debian11-nodejs-23.11.0.yaml
 
 Examples
 --------

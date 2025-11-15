@@ -156,19 +156,14 @@ if ! command -v unzip >/dev/null 2>&1; then
     exit 1
 fi
 
-# Check if trivy is installed
-if ! command -v trivy >/dev/null 2>&1; then
-    echo "Error: trivy is not installed."
-    echo "Trivy is a security scanner used to detect vulnerabilities, misconfigurations, and secrets."
-    echo "To install trivy, follow these steps:"
-    echo ""
-    echo "For Linux/macOS:"
-    echo "   Download the latest release from https://github.com/aquasecurity/trivy/releases"
-    echo "   Example for Linux:"
-    echo "   curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin"
-    echo ""
-    exit 1
+# Check if trivy is installed (optional)
+TRIVY_AVAILABLE=0
+if command -v trivy >/dev/null 2>&1; then
+    TRIVY_AVAILABLE=1
+else
+    echo "Warning: trivy is not installed. Security scanning will be skipped."
 fi
+export TRIVY_AVAILABLE
 
 # Function to run commands with error handling
 run() {
@@ -355,6 +350,15 @@ dist="$scriptdir"/dist/$name && mkdir --parents "$dist"
 DOWNLOAD='download'
 mkdir --parents "$DOWNLOAD"
 
+# Ensure cleanup on exit/failure
+cleanup() {
+  # Best-effort unmount and cleanup
+  umount_target_fs || true
+  [[ -n "${target:-}" && -d "$target" ]] && rm --recursive --force "$target" || true
+  [[ -n "${debootstrap_dir:-}" && -d "$debootstrap_dir" ]] && rm --recursive --force "$debootstrap_dir" || true
+}
+trap 'cleanup' EXIT INT TERM
+
 # Define repository URLs
 repo_url="http://deb.debian.org/debian"
 sec_repo_url="http://security.debian.org/debian-security"
@@ -420,10 +424,18 @@ main() {
   fi
 
   if [[ -v recipes[@] ]]; then
-    header "Running installer scripts"
+    header "Running installer scripts in chroot"
     while read -r line; do
       info "Running ${line}"
-      run source "${line}" && `basename ${line} .sh`
+      script_name="$(basename "$line")"
+      run cp --archive "$line" "$target/tmp/$script_name"
+      run chmod +x "$target/tmp/$script_name"
+      if [[ -x "$target/bin/bash" ]]; then
+        run chroot "$target" env DEBIAN_FRONTEND=noninteractive /bin/bash -o pipefail -ec "/tmp/$script_name"
+      else
+        run chroot "$target" env DEBIAN_FRONTEND=noninteractive /bin/sh -ec "/tmp/$script_name"
+      fi
+      run rm --force "$target/tmp/$script_name"
     done < <(print-array ${recipes[@]})
   fi
 
@@ -473,13 +485,20 @@ main() {
   run rm --recursive --force "$target"/etc/ld.so.cache && run chroot "$target" ldconfig
 
   if [[ -v scripts[@] ]]; then
-    header "Running tests"
-    source "${scripts}"
+    header "Running scripts"
+    while read -r line; do
+      if [[ "$line" == *"security-scan.sh"* && "$TRIVY_AVAILABLE" -eq 0 ]]; then
+        warn "Trivy not found. Skipping security scan script: $line"
+        continue
+      fi
+      info "Running ${line}"
+      run source "${line}"
+    done < <(print-array ${scripts[@]})
   fi
 
   header "Archiving image"
   GZIP="--no-name" run tar --numeric-owner -czf "$dist"/"$name".tar --directory "$target" . --transform='s,^./,,' --mtime='1970-01-01'
-  md5sum "$dist"/"$name".tar > "$dist"/"$name".SUM
+  sha256sum "$dist"/"$name".tar > "$dist"/"$name".sha256
 
   header "Remove temporary directories"
   run rm --recursive --force "$target"
