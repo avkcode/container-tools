@@ -486,13 +486,31 @@ main() {
 
   if [[ -v scripts[@] ]]; then
     header "Running scripts"
+    project_root="$(cd "$scriptdir/.." && pwd)"
     while read -r line; do
-      if [[ "$line" == *"security-scan.sh"* && "$TRIVY_AVAILABLE" -eq 0 ]]; then
+      # Resolve script path robustly
+      script_path="$line"
+      if [[ ! -f "$script_path" ]]; then
+        base="$(basename "$line")"
+        if [[ -f "$project_root/scripts/$base" ]]; then
+          script_path="$project_root/scripts/$base"
+        elif [[ -f "$project_root/$base" ]]; then
+          script_path="$project_root/$base"
+        fi
+      fi
+
+      if [[ "$script_path" == *"security-scan.sh"* && "$TRIVY_AVAILABLE" -eq 0 ]]; then
         warn "Trivy not found. Skipping security scan script: $line"
         continue
       fi
-      info "Running ${line}"
-      run source "${line}"
+
+      if [[ ! -f "$script_path" ]]; then
+        warn "Script not found: $line"
+        continue
+      fi
+
+      info "Running ${script_path}"
+      run source "${script_path}"
     done < <(print-array ${scripts[@]})
   fi
 
