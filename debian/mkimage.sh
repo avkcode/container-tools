@@ -49,7 +49,7 @@ EOF
 }
 # Mount essential pseudo-filesystems into the target chroot
 mount_target_fs() {
-  mkdir -p "$target/proc" "$target/sys" "$target/dev/pts"
+  mkdir -p "$target/proc" "$target/sys" "$target/dev/pts" "$target/dev/shm" "$target/run"
   if ! mountpoint -q "$target/proc"; then
     run mount -t proc proc "$target/proc"
   fi
@@ -62,11 +62,17 @@ mount_target_fs() {
   if ! mountpoint -q "$target/dev/pts"; then
     run mount --bind /dev/pts "$target/dev/pts"
   fi
+  if ! mountpoint -q "$target/dev/shm"; then
+    run mount --bind /dev/shm "$target/dev/shm"
+  fi
+  if ! mountpoint -q "$target/run"; then
+    run mount --bind /run "$target/run"
+  fi
 }
 
 # Unmount pseudo-filesystems from the target chroot (best-effort)
 umount_target_fs() {
-  for mp in "$target/dev/pts" "$target/dev" "$target/sys" "$target/proc"; do
+  for mp in "$target/dev/pts" "$target/dev/shm" "$target/dev" "$target/run" "$target/sys" "$target/proc"; do
     if mountpoint -q "$mp"; then
       run umount "$mp" || run umount -l "$mp" || true
     fi
@@ -335,9 +341,9 @@ fi
 # Use podman if available, otherwise fall back to docker
 if command -v podman; then
   warn "Podman will be used for building images"
-  podman=docker
-else
   podman=podman
+else
+  podman=docker
 fi
 
 # Set up temporary directories
@@ -351,7 +357,7 @@ mkdir --parents "$DOWNLOAD"
 
 # Define repository URLs
 repo_url="http://deb.debian.org/debian"
-sec_repo_url="http://security.debian.org/"
+sec_repo_url="http://security.debian.org/debian-security"
 
 ############################## SCRIPT MAIN ##############################
 
@@ -375,10 +381,10 @@ main() {
   header "Using debootstrap to create rootfs"
   # Ensure required pseudo-filesystems are mounted for chroot operations
   mount_target_fs
-  # Always include perl-base in debootstrap to fix pkgdetails error (minimal /usr/bin/perl for second-stage)
-  local debootstrap_include="perl-base"
+  # Always include perl-base and mawk in debootstrap to ensure essential tools exist for maintainer scripts
+  local debootstrap_include="perl-base,mawk"
   if [[ -n "${debootstrap_packages}" ]]; then
-    debootstrap_include="${debootstrap_packages},perl-base"
+    debootstrap_include="${debootstrap_packages},perl-base,mawk"
   fi
   
   # Run first stage with LANG=C to avoid locale warnings
@@ -400,6 +406,7 @@ main() {
   echo "deb $repo_url $release main" > "$target"/etc/apt/sources.list
   echo "deb $repo_url $release-updates main" >> "$target"/etc/apt/sources.list
   echo "deb $sec_repo_url $release-security main" >> "$target"/etc/apt/sources.list
+  run cp --dereference /etc/resolv.conf "$target"/etc/resolv.conf
   run chroot "$target" apt-get update
 
   if [[ -v packages[@] ]]; then

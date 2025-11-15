@@ -105,7 +105,7 @@ endif
 
 # Build options
 VARIANT ?= container
-RELEASE ?= stable
+RELEASE ?= bullseye
 
 # Validate VARIANT
 VALID_VARIANTS := container fakechroot minbase
