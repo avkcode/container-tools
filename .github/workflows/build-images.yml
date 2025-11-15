@@ -68,3 +68,55 @@ jobs:
           path: debian/dist/${{ matrix.target }}/**
           if-no-files-found: error
           retention-days: 14
+
+  test:
+    name: Container structure tests
+    runs-on: ubuntu-latest
+    needs: build
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - debian11
+          - debian11-java
+          - debian11-java-slim
+          - debian11-graal
+          - debian11-graal-slim
+          - debian11-corretto
+          - debian11-java-slim-maven
+          - debian11-java-slim-gradle
+          - debian11-nodejs-23.11.0
+          - debian11-python-3.9.18
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download built image artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ matrix.target }}
+          path: debian/dist/${{ matrix.target }}
+
+      - name: Install container-structure-test
+        shell: bash
+        run: |
+          set -euxo pipefail
+          curl -fsSL -o /usr/local/bin/container-structure-test https://github.com/GoogleContainerTools/container-structure-test/releases/download/v1.16.0/container-structure-test-linux-amd64
+          chmod +x /usr/local/bin/container-structure-test
+          container-structure-test version || true
+
+      - name: Run structure tests
+        shell: bash
+        run: |
+          set -euxo pipefail
+          make test
+
+      - name: Upload test logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.target }}-test-logs
+          path: debian/dist/${{ matrix.target }}/*.log
+          if-no-files-found: warn
+          retention-days: 7
