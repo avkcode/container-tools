@@ -11,10 +11,15 @@ error() {
     echo "$(date '+%Y-%m-%d %H:%M:%S') [ERROR] $1" >&2
 }
 
+warning() {
+    echo "$(date '+%Y-%m-%d %H:%M:%S') [WARNING] $1" >&2
+}
+
 # Check if trivy is installed
 if ! command -v trivy &> /dev/null; then
-    error "Trivy is not installed. Please install it from https://github.com/aquasecurity/trivy"
-    exit 1
+    warning "Trivy is not installed. Skipping security scan."
+    warning "To enable security scanning, install trivy from https://github.com/aquasecurity/trivy"
+    exit 0
 fi
 
 # Check if target is provided
