@@ -7,7 +7,7 @@
 
 # Create examples directory structure
 examples-dir:
-	@mkdir -p examples/{debian,java,nodejs,kafka,security,testing}
+	@mkdir -p examples/{debian,java,nodejs,security,testing}
 
 # Run all recipe lines in one shell (enables using shell variables across lines)
 .ONESHELL:
@@ -56,7 +56,7 @@ help:
 	@echo "|debian11-java-slim-gradle|"
 	@echo "|debian11-graal-slim-maven|"
 	@echo "|debian11-graal-slim-gradle|"
-	@echo	
+	@echo
 	@echo "|debian11-nodejs-23.11.0|"
 	@echo
 	@echo "|debian11-python-3.9.18|"
