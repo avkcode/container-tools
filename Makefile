@@ -117,7 +117,7 @@ CT_DISABLE_SECURITY_SCAN_LC := $(shell printf "%s" "$(CT_DISABLE_SECURITY_SCAN)"
 ifneq (,$(filter 1 true yes,$(CT_DISABLE_SECURITY_SCAN_LC)))
   SECURITY_SCAN_ARG :=
 else
-  SECURITY_SCAN_ARG := --scripts=$(SCRIPTS)/security-scan.sh
+  SECURITY_SCAN_ARG := --scripts=$(SCRIPTS_DIR)/security-scan.sh
 endif
 
 COLOR_RESET := \033[0m
@@ -326,7 +326,7 @@ test: ## Run structure tests on built container images
 # ==============================================================================
 # Utility Targets
 # ==============================================================================
-REQUIRED_TOOLS := docker bash grep sed awk debootstrap unzip curl perl
+REQUIRED_TOOLS := docker bash grep sed awk debootstrap unzip curl perl trivy
 check-dependencies:
 	$(PRINT_HEADER)
 	@echo "Checking required dependencies..."
