@@ -10,7 +10,12 @@ from utils import logger, run_command, check_program_installed
 def validate_image(image_id):
     """Check if the Docker image exists locally."""
     try:
-        stdout, stderr, rc = run_command(["docker", "inspect", "--type=image", image_id])
+        result = run_command(["docker", "inspect", "--type=image", image_id])
+        try:
+            stdout, stderr, rc = result
+        except ValueError:
+            stdout, rc = result
+            stderr = ""
         if rc != 0:
             logger.warning(f"Docker image not found: {image_id}")
             return False
@@ -47,7 +52,12 @@ def run_container_test(image_id, config_file, dry_run=False):
             logger.info(f"[Dry Run] Skipping execution of: {' '.join(test_cmd)}")
             return
 
-        stdout, stderr, rc = run_command(test_cmd, dry_run=dry_run)
+        result = run_command(test_cmd, dry_run=dry_run)
+        try:
+            stdout, stderr, rc = result
+        except ValueError:
+            stdout, rc = result
+            stderr = ""
 
         # Log the output
         if stdout:

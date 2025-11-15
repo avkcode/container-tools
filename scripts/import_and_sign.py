@@ -59,7 +59,12 @@ def import_image(tar_file, image_name, transport="auto", insecure_policy=True, d
             logger.info(f"[Dry Run] Skipping execution of: {' '.join(cmd)}")
             return True
 
-        stdout, stderr, rc = run_command(cmd)
+        result = run_command(cmd)
+        try:
+            stdout, stderr, rc = result
+        except ValueError:
+            stdout, rc = result
+            stderr = ""
         if rc != 0:
             logger.error(f"skopeo copy failed: {stderr or stdout}")
             return False
@@ -74,7 +79,12 @@ def import_image(tar_file, image_name, transport="auto", insecure_policy=True, d
             logger.info(f"[Dry Run] Skipping execution of: {' '.join(cmd)}")
             return True
 
-        stdout, stderr, rc = run_command(cmd)
+        result = run_command(cmd)
+        try:
+            stdout, stderr, rc = result
+        except ValueError:
+            stdout, rc = result
+            stderr = ""
         if rc != 0:
             logger.error(f"docker import failed: {stderr or stdout}")
             return False
