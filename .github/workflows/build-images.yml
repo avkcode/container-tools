@@ -98,12 +98,7 @@ jobs:
           name: ${{ matrix.target }}
           path: debian/dist/${{ matrix.target }}
 
-      - name: Install skopeo
-        shell: bash
-        run: |
-          set -euxo pipefail
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends skopeo
+      # Removed explicit skopeo installation; using docker import for rootfs tarballs
 
       - name: Import image tarball into Docker
         shell: bash
@@ -117,11 +112,8 @@ jobs:
             echo "No tarball found in ${TAR_DIR}" >&2
             exit 1
           fi
-          echo "Importing ${TAR_FILE} into Docker as ${MATRIX_TARGET}:latest"
-          if ! skopeo copy --insecure-policy "oci-archive:${TAR_FILE}" "docker://${MATRIX_TARGET}:latest"; then
-            echo "OCI import failed, trying docker-archive..."
-            skopeo copy --insecure-policy "docker-archive:${TAR_FILE}" "docker://${MATRIX_TARGET}:latest"
-          fi
+          echo "Importing rootfs tarball ${TAR_FILE} into Docker as ${MATRIX_TARGET}:latest"
+          docker import "${TAR_FILE}" "${MATRIX_TARGET}:latest"
           docker image inspect "${MATRIX_TARGET}:latest" >/dev/null
 
       - name: Install container-structure-test
