@@ -87,10 +87,6 @@ main() {
     # Ensure dist directory exists
     mkdir -p "${DIST_DIR}"
 
-    # Update vulnerability database
-    info "Updating vulnerability database"
-    trivy --download-db-only
-
     # Perform the scan using Trivy exit codes directly
     info "Scanning with trivy (CRITICAL severity): ${SCAN_TARGET}"
     local rc=0
