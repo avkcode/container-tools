@@ -6,9 +6,10 @@ if [ -n "$TRACE" ]; then
   set -o xtrace
 fi
 
-# Exit on error and pipefail
+# Exit on error, nounset, and pipefail
 set -o errexit
 set -o pipefail
+set -o nounset
 
 # Function to display usage information
 usage() {
@@ -159,6 +160,13 @@ tmpdir="$(mktemp --directory --tmpdir tmp-XXXXX)"
 rootfs_dir="$target/rootfs"
 mkdir -p "$rootfs_dir"
 
+# Ensure cleanup on exit/failure
+cleanup() {
+  [[ -n "${target:-}" && -d "$target" ]] && rm -rf "$target" || true
+  [[ -n "${tmpdir:-}" && -d "$tmpdir" ]] && rm -rf "$tmpdir" || true
+}
+trap 'cleanup' EXIT INT TERM
+
 # Create output directory
 image_name="alpine${alpine_version/v/}"
 dist_dir="${output_dir}/${image_name}"
@@ -182,7 +190,7 @@ main() {
   
   # Install Alpine Linux
   info "Installing base system"
-  run apk --root "$rootfs_dir" --update-cache --initdb add $packages
+  run apk --root "$rootfs_dir" add --no-cache $packages
   
   # Configure the system
   info "Configuring system"
@@ -204,7 +212,7 @@ EOF
   # Create tarball
   info "Creating tarball"
   GZIP="--no-name" run tar --numeric-owner -czf "$dist_dir/$image_name.tar" --directory "$rootfs_dir" . --transform='s,^./,,' --mtime='1970-01-01'
-  md5sum "$dist_dir/$image_name.tar" > "$dist_dir/$image_name.SUM"
+  sha256sum "$dist_dir/$image_name.tar" > "$dist_dir/$image_name.sha256"
   
   # Create metadata file
   info "Creating metadata"
