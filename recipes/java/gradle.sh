@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-GRADLE_VERSION='7.4.2'
-GRADLE_SHA='29e49b10984e585d8118b7d0bc452f944e386458df27371b49b4ac1dec4b7fda'
-GRADLE_URL="https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip"
+GRADLE_VERSION="${GRADLE_VERSION:-7.4.2}"
+GRADLE_SHA="${GRADLE_SHA:-29e49b10984e585d8118b7d0bc452f944e386458df27371b49b4ac1dec4b7fda}"
+GRADLE_URL="${GRADLE_URL:-https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip}"
 
 gradle() {
     if [[ ! -f ${DOWNLOAD}/gradle-${GRADLE_VERSION}-bin.zip ]]; then

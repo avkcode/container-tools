@@ -107,6 +107,16 @@ endif
 VARIANT ?= container
 RELEASE ?= bullseye
 
+# Component versions (override in make command or environment)
+JAVA_VERSION ?= 21.0.1
+GRAALVM_VERSION ?= 20.0.2
+CORRETTO_VERSION ?= 17.0.9.8.1
+MAVEN_VERSION ?= 3.8.8
+GRADLE_VERSION ?= 7.4.2
+NODE_VERSION ?= 23.11.0
+PYTHON_VERSION ?= 3.9.18
+KAFKA_VERSION ?= 4.0.0
+
 # Validate VARIANT
 VALID_VARIANTS := container fakechroot minbase
 ifneq (,$(filter-out $(VALID_VARIANTS),$(VARIANT)))

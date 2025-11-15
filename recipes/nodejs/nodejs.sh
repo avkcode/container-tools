@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
 # Node.js LTS version
-NODE_VERSION='23.11.0'
-NODE_SHA='fa9ae28d8796a6cfb7057397e1eea30ca1c61002b42b8897f354563a254e7cf5'
-NODE_URL="https://nodejs.org/dist/latest/node-v${NODE_VERSION}-linux-x64.tar.xz"
+NODE_VERSION="${NODE_VERSION:-23.11.0}"
+NODE_SHA="${NODE_SHA:-fa9ae28d8796a6cfb7057397e1eea30ca1c61002b42b8897f354563a254e7cf5}"
+NODE_URL="${NODE_URL:-https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz}"
 
 nodejs() {
     # Install required tools

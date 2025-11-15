@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
 # Python version information
-PYTHON_VERSION='3.9.18'
+PYTHON_VERSION="${PYTHON_VERSION:-3.9.18}"
 PYTHON_MINOR=$(echo "$PYTHON_VERSION" | cut -d. -f1-2)
-PYTHON_SHA='01597db0132c1cf7b331eff68ae09b5a235a3c3caa9c944c29cac7d1c4c4c00a'
-PYTHON_URL="https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tar.xz"
+PYTHON_SHA="${PYTHON_SHA:-01597db0132c1cf7b331eff68ae09b5a235a3c3caa9c944c29cac7d1c4c4c00a}"
+PYTHON_URL="${PYTHON_URL:-https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tar.xz}"
 
 python() {
     header "Installing build dependencies"

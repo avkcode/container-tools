@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-GRAALVM_VERSION='20.0.2'
-GRAALVM_SHA='941a85a690e7b1c4e1fcfac321561ca46033bba3ac4882dd15d4f45edd06726c'
-GRAALVM_URL="https://github.com/graalvm/graalvm-ce-builds/releases/download/jdk-${GRAALVM_VERSION}/graalvm-community-jdk-${GRAALVM_VERSION}_linux-x64_bin.tar.gz"
+GRAALVM_VERSION="${GRAALVM_VERSION:-20.0.2}"
+GRAALVM_SHA="${GRAALVM_SHA:-941a85a690e7b1c4e1fcfac321561ca46033bba3ac4882dd15d4f45edd06726c}"
+GRAALVM_URL="${GRAALVM_URL:-https://github.com/graalvm/graalvm-ce-builds/releases/download/jdk-${GRAALVM_VERSION}/graalvm-community-jdk-${GRAALVM_VERSION}_linux-x64_bin.tar.gz}"
 
 graalvm() {
     if [[ ! -f ${DOWNLOAD}/graal-${GRAALVM_VERSION}.tar.gz ]]; then

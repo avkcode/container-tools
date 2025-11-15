@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-KAFKA_VERSION='4.0.0'
-KAFKA_SHA='7b852e938bc09de10cd96eca3755258c7d25fb89dbdd76305717607e1835e2aa'
-KAFKA_URL="https://downloads.apache.org/kafka/${KAFKA_VERSION}/kafka_2.13-${KAFKA_VERSION}.tgz"
+KAFKA_VERSION="${KAFKA_VERSION:-4.0.0}"
+KAFKA_SHA="${KAFKA_SHA:-7b852e938bc09de10cd96eca3755258c7d25fb89dbdd76305717607e1835e2aa}"
+KAFKA_URL="${KAFKA_URL:-https://downloads.apache.org/kafka/${KAFKA_VERSION}/kafka_2.13-${KAFKA_VERSION}.tgz}"
 
 kafka() {
     # Check if Java is installed (required for Kafka)

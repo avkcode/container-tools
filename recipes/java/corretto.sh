@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-CORRETO_VERSION='17.0.9.8.1'
-CORRETO_SHA='0cf11d8e41d7b28a3dbb95cbdd90c398c310a9ea870e5a06dac65a004612aa62'
-CORRETO_URL="https://corretto.aws/downloads/resources/${CORRETO_VERSION}/amazon-corretto-${CORRETO_VERSION}-linux-x64.tar.gz"
+CORRETO_VERSION="${CORRETTO_VERSION:-17.0.9.8.1}"
+CORRETO_SHA="${CORRETTO_SHA:-0cf11d8e41d7b28a3dbb95cbdd90c398c310a9ea870e5a06dac65a004612aa62}"
+CORRETO_URL="${CORRETTO_URL:-https://corretto.aws/downloads/resources/${CORRETO_VERSION}/amazon-corretto-${CORRETO_VERSION}-linux-x64.tar.gz}"
 
 JDK_VERSION=${CORRETO_VERSION}
 JDK_SHA=${CORRETO_SHA}
