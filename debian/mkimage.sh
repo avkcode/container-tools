@@ -348,8 +348,16 @@ main() {
   run cp --archive "$scriptdir"/debootstrap/* "$debootstrap_dir/scripts"
 
   header "Using debootstrap to create rootfs"
-  DEBOOTSTRAP_DIR="$debootstrap_dir" run debootstrap --no-check-gpg --keyring "$keyring" --variant "$variant" "${debootstrap_packages[@]}" --foreign "$release" "$target"
-  LANG=C run chroot "$target" bash debootstrap/debootstrap --verbose --second-stage
+  # Add perl to debootstrap packages to fix pkgdetails error
+  local debootstrap_include="perl"
+  if [[ -n "${debootstrap_packages}" ]]; then
+    debootstrap_include="${debootstrap_packages},perl"
+  fi
+  
+  DEBOOTSTRAP_DIR="$debootstrap_dir" run debootstrap --no-check-gpg --keyring "$keyring" --variant "$variant" --include="$debootstrap_include" --foreign "$release" "$target"
+  
+  # Run second stage with LANG=C to avoid locale warnings
+  LANG=C DEBOOTSTRAP_DIR="$debootstrap_dir" run chroot "$target" bash debootstrap/debootstrap --verbose --second-stage
 
   header "Configuring apt repos"
   echo "deb $repo_url $release-updates main" >> "$target"/etc/apt/sources.list
