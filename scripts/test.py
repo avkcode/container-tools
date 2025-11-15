@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import os
-import subprocess
 import argparse
 from pathlib import Path
 
@@ -11,11 +10,13 @@ from utils import logger, run_command, check_program_installed
 def validate_image(image_id):
     """Check if the Docker image exists locally."""
     try:
-        # Use `docker inspect` to check if the image exists
-        run_command(f"docker inspect --type=image {image_id}")
+        stdout, stderr, rc = run_command(["docker", "inspect", "--type=image", image_id])
+        if rc != 0:
+            logger.warning(f"Docker image not found: {image_id}")
+            return False
         return True
-    except Exception:
-        logger.warning(f"Docker image not found: {image_id}")
+    except Exception as e:
+        logger.warning(f"Error inspecting Docker image {image_id}: {e}")
         return False
 
 def validate_config_file(config_file):
@@ -41,12 +42,12 @@ def run_container_test(image_id, config_file, dry_run=False):
             "--config", str(config_file),
         ]
 
-        # Execute the command
+        # Execute the command once
         if dry_run:
             logger.info(f"[Dry Run] Skipping execution of: {' '.join(test_cmd)}")
             return
 
-        stdout, stderr = run_command(" ".join(test_cmd), dry_run=dry_run)
+        stdout, stderr, rc = run_command(test_cmd, dry_run=dry_run)
 
         # Log the output
         if stdout:
@@ -54,19 +55,11 @@ def run_container_test(image_id, config_file, dry_run=False):
         if stderr:
             logger.error(f"Container Structure Test Errors:\n{stderr}")
 
-        # Check the exit code
-        result = subprocess.run(
-            " ".join(test_cmd),
-            shell=True,
-            check=False,
-            text=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
-        if result.returncode == 0:
+        if rc == 0:
             logger.info(f"Tests passed for image: {image_id} with config: {config_file}")
         else:
             logger.error(f"Tests failed for image: {image_id} with config: {config_file}")
+            raise RuntimeError(f"container-structure-test exited with code {rc}")
 
     except Exception as e:
         logger.error(f"Failed to run tests for image: {image_id}. Error: {e}")
