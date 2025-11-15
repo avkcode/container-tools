@@ -1,0 +1,9 @@
+# See https://docs.github.com/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+# These owners will be requested for review when someone opens a pull request.
+
+* @avkcode
+
+# Optional: add path-specific owners if your team grows.
+# docs/* @avkcode
+# debian/* @avkcode
+# scripts/* @avkcode
