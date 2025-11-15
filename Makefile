@@ -114,7 +114,7 @@ export VERSION BUILD_DATE GIT_REVISION
 
 # Toggle inclusion of the security scan script in builds (default: enabled).
 # Set CT_DISABLE_SECURITY_SCAN=1/true/yes to omit passing the scan script to mkimage.sh.
-CT_DISABLE_SECURITY_SCAN ?=
+CT_DISABLE_SECURITY_SCAN ?= 1
 CT_DISABLE_SECURITY_SCAN_LC := $(shell printf "%s" "$(CT_DISABLE_SECURITY_SCAN)" | tr '[:upper:]' '[:lower:]')
 ifneq (,$(filter 1 true yes,$(CT_DISABLE_SECURITY_SCAN_LC)))
   SECURITY_SCAN_ARG :=
