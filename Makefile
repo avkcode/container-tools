@@ -70,6 +70,8 @@ SRCDIR := $(abspath $(patsubst %/,%,$(dir $(THIS_FILE))))
 DOWNLOAD_DIR := $(SRCDIR)/download
 SCRIPTS_DIR := $(SRCDIR)/scripts
 DOCKER_CMD ?= docker
+# Use sudo when not running as root for mkimage.sh operations that require privileges
+SUDO := $(shell if [ "$$(id -u)" -eq 0 ]; then echo ""; else echo "sudo"; fi)
 
 # Debian configuration
 DEBIAN_DIR := $(SRCDIR)/debian
@@ -155,7 +157,7 @@ all-debian: debian11 debian11-java debian11-java-slim debian11-graal \
 
 debian11:
 	$(PRINT_HEADER)
-	$(DEBIAN_BUILD_SCRIPT) \
+	$(SUDO) $(DEBIAN_BUILD_SCRIPT) \
 			--name=$@ \
 			--keyring=$(DEBIAN_KEYRING) \
 			--variant=$(VARIANT) \
@@ -164,7 +166,7 @@ debian11:
 
 debian11-java:
 	$(PRINT_HEADER)
-	$(DEBIAN_BUILD_SCRIPT) \
+	$(SUDO) $(DEBIAN_BUILD_SCRIPT) \
 			--name=$@ \
 			--keyring=$(DEBIAN_KEYRING) \
 			--variant=$(VARIANT) \
@@ -174,7 +176,7 @@ debian11-java:
 
 debian11-java-slim:
 	$(PRINT_HEADER)
-	$(DEBIAN_BUILD_SCRIPT) \
+	$(SUDO) $(DEBIAN_BUILD_SCRIPT) \
 			--name=$@ \
 			--keyring=$(DEBIAN_KEYRING) \
 			--variant=$(VARIANT) \
@@ -184,7 +186,7 @@ debian11-java-slim:
 
 debian11-graal:
 	$(PRINT_HEADER)
-	$(DEBIAN_BUILD_SCRIPT) \
+	$(SUDO) $(DEBIAN_BUILD_SCRIPT) \
 			--name=$@ \
 			--keyring=$(DEBIAN_KEYRING) \
 			--variant=$(VARIANT) \
@@ -194,7 +196,7 @@ debian11-graal:
 
 debian11-graal-slim:
 	$(PRINT_HEADER)
-	$(DEBIAN_BUILD_SCRIPT) \
+	$(SUDO) $(DEBIAN_BUILD_SCRIPT) \
 			--name=$@ \
 			--keyring=$(DEBIAN_KEYRING) \
 			--variant=$(VARIANT) \
@@ -204,7 +206,7 @@ debian11-graal-slim:
 
 debian11-corretto:
 	$(PRINT_HEADER)
-	$(DEBIAN_BUILD_SCRIPT) \
+	$(SUDO) $(DEBIAN_BUILD_SCRIPT) \
 			--name=$@ \
 			--keyring=$(DEBIAN_KEYRING) \
 			--variant=$(VARIANT) \
@@ -214,7 +216,7 @@ debian11-corretto:
 
 debian11-java-slim-maven:
 	$(PRINT_HEADER)
-	$(DEBIAN_BUILD_SCRIPT) \
+	$(SUDO) $(DEBIAN_BUILD_SCRIPT) \
 			--name=$@ \
 			--keyring=$(DEBIAN_KEYRING) \
 			--variant=$(VARIANT) \
@@ -224,7 +226,7 @@ debian11-java-slim-maven:
 
 debian11-java-slim-gradle:
 	$(PRINT_HEADER)
-	$(DEBIAN_BUILD_SCRIPT) \
+	$(SUDO) $(DEBIAN_BUILD_SCRIPT) \
 			--name=$@ \
 			--keyring=$(DEBIAN_KEYRING) \
 			--variant=$(VARIANT) \
@@ -234,7 +236,7 @@ debian11-java-slim-gradle:
 
 debian11-graal-slim-maven:
 	$(PRINT_HEADER)
-	$(DEBIAN_BUILD_SCRIPT) \
+	$(SUDO) $(DEBIAN_BUILD_SCRIPT) \
 			--name=$@ \
 			--keyring=$(DEBIAN_KEYRING) \
 			--variant=$(VARIANT) \
@@ -244,7 +246,7 @@ debian11-graal-slim-maven:
 
 debian11-graal-slim-gradle:
 	$(PRINT_HEADER)
-	$(DEBIAN_BUILD_SCRIPT) \
+	$(SUDO) $(DEBIAN_BUILD_SCRIPT) \
 			--name=$@ \
 			--keyring=$(DEBIAN_KEYRING) \
 			--variant=$(VARIANT) \
@@ -258,7 +260,7 @@ debian11-graal-slim-gradle:
 
 debian11-nodejs-23.11.0:
 	$(PRINT_HEADER)
-	$(DEBIAN_BUILD_SCRIPT) \
+	$(SUDO) $(DEBIAN_BUILD_SCRIPT) \
 			--name=$@ \
 			--keyring=$(DEBIAN_KEYRING) \
 			--variant=$(VARIANT) \
@@ -268,7 +270,7 @@ debian11-nodejs-23.11.0:
 
 debian11-python-3.9.18:
 	$(PRINT_HEADER)
-	$(DEBIAN_BUILD_SCRIPT) \
+	$(SUDO) $(DEBIAN_BUILD_SCRIPT) \
                         --name=$@ \
                         --keyring=$(DEBIAN_KEYRING) \
                         --variant=$(VARIANT) \
@@ -278,7 +280,7 @@ debian11-python-3.9.18:
 
 debian11-cuda-runtime:
 	$(PRINT_HEADER)
-	$(DEBIAN_BUILD_SCRIPT) \
+	$(SUDO) $(DEBIAN_BUILD_SCRIPT) \
 			--name=$@ \
 			--keyring=$(DEBIAN_KEYRING) \
 			--variant=$(VARIANT) \
