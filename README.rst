@@ -21,7 +21,7 @@ This tool enables you to:
 
 - Build minimal base images from scratch using debootstrap
 - Precisely include only required components in the initial build
-- Create specialized variants (Java, Kafka, etc.) from common foundations
+- Create specialized variants (Java, etc.) from common foundations
 
 Features
 --------
@@ -84,8 +84,6 @@ Available targets:
    debian11-java-slim-gradle
    debian11-graal-slim-maven
    debian11-graal-slim-gradle
-   debian11-java-kafka
-   debian11-java-slim-kafka
    debian11-nodejs-23.11.0
 
 Using Built Images
@@ -162,7 +160,6 @@ Repository Structure
    │   └── mkimage.sh       # Alpine rootfs builder script
    ├── recipes/
    │   ├── java/            # Java variants for Debian
-   │   ├── kafka/           # Kafka installation
    │   └── alpine/          # Alpine-specific recipes
    ├── scripts/             # Maintenance scripts
    ├── debian/dist/         # Output images

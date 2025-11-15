@@ -57,9 +57,6 @@ help:
 	@echo "|debian11-graal-slim-maven|"
 	@echo "|debian11-graal-slim-gradle|"
 	@echo	
-	@echo "|debian11-java-kafka|"
-	@echo "|debian11-java-slim-kafka|"
-	@echo	
 	@echo "|debian11-nodejs-23.11.0|"
 	@echo
 	@echo "|debian11-python-3.9.18|"
@@ -153,8 +150,8 @@ ALPINE_RECIPES := $(RECIPES_DIR)/alpine/
 
 .PHONY: debian11 debian11-java debian11-java-slim debian11-graal \
         debian11-graal-slim debian11-corretto debian11-java-slim-maven \
-        debian11-java-slim-gradle debian11-nodejs-23.11.0 debian11-java-slim-kafka \
-        debian11-java-kafka debian11-python-3.9.18
+        debian11-java-slim-gradle debian11-nodejs-23.11.0 \
+        debian11-python-3.9.18
 
 .PHONY: all all-debian all-alpine
 .PHONY: help examples-dir check-dependencies clean list-vars debian11-graal-slim-maven debian11-graal-slim-gradle debian11-php-8.2.12
@@ -162,8 +159,8 @@ all: all-debian all-alpine
 
 all-debian: debian11 debian11-java debian11-java-slim debian11-graal \
      debian11-graal-slim debian11-corretto debian11-java-slim-maven \
-     debian11-java-slim-gradle debian11-nodejs-23.11.0 debian11-java-slim-kafka \
-     debian11-java-kafka debian11-python-3.9.18
+     debian11-java-slim-gradle debian11-nodejs-23.11.0 \
+     debian11-python-3.9.18
 
 all-alpine: alpine3.19 alpine3.19-java17 alpine3.19-java11 alpine3.19-java8 alpine3.19-nodejs
 
@@ -267,25 +264,7 @@ debian11-graal-slim-gradle:
 			--scripts=$(SCRIPTS)/security-scan.sh
 
 
-debian11-java-kafka:
-	$(PRINT_HEADER)
-	$(DEBIAN_BUILD_SCRIPT) \
-			--name=$@ \
-			--keyring=$(DEBIAN_KEYRING) \
-			--variant=$(VARIANT) \
-			--release=$(RELEASE) \
-			--recipes=$(JAVA_RECIPES)/java.sh,$(RECIPES)/kafka/kafka.sh \
-			--scripts=$(SCRIPTS)/security-scan.sh
 
-debian11-java-slim-kafka:
-	$(PRINT_HEADER)
-	$(DEBIAN_BUILD_SCRIPT) \
-			--name=$@ \
-			--keyring=$(DEBIAN_KEYRING) \
-			--variant=$(VARIANT) \
-			--release=$(RELEASE) \
-			--recipes=$(JAVA_RECIPES)/java_slim.sh,$(RECIPES)/kafka/kafka.sh \
-			--scripts=$(SCRIPTS)/security-scan.sh
 
 
 debian11-nodejs-23.11.0:
