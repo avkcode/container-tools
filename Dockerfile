@@ -14,8 +14,3 @@ RUN set -eux; \
     apt-get clean; \
     rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
 
-# Install Alpine Linux tools
-RUN apt-get update && apt-get install -y --no-install-recommends alpine-chroot-install \
-    && mkdir -p /etc/apk /lib/apk /var/cache/apk \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*

@@ -2,7 +2,7 @@
 
 Thanks for taking the time to contribute!
 
-This project builds minimal Debian/Alpine rootfs artifacts, adds optional security scanning, and includes testing/signing helpers. Please follow the guidelines below to keep contributions consistent, secure, and maintainable.
+This project builds minimal Debian rootfs artifacts, adds optional security scanning, and includes testing/signing helpers. Please follow the guidelines below to keep contributions consistent, secure, and maintainable.
 
 ## Getting Started
 

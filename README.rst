@@ -6,7 +6,7 @@ Container Tools
    :width: 80px
    :align: right
 
-Container Tools provides scripts and utilities to automate the creation of minimal root filesystems (rootfs) using debootstrap for Debian-based systems and Alpine Linux. It supports customization with specific packages, configurations, and integrates security scanning for containerized environments. Easily extensible for other distros and projects.
+Container Tools provides scripts and utilities to automate the creation of minimal root filesystems (rootfs) using debootstrap for Debian-based Linux. It supports customization with specific packages, configurations, and integrates security scanning for containerized environments. Easily extensible for other distros and projects.
 
 Rationale
 --------
@@ -26,7 +26,7 @@ This tool enables you to:
 Features
 --------
 
-- Lightweight rootfs generation for Debian and Alpine Linux
+- Lightweight rootfs generation for Debian Linux
 - Customizable package selection
 - Security scanning integration (Trivy)
 - Support for Java variants (Standard, GraalVM, Corretto)
@@ -156,11 +156,8 @@ Repository Structure
    │   ├── debootstrap/     # Debian version configs
    │   ├── keys/            # GPG keys for verification
    │   └── mkimage.sh       # Rootfs builder script
-   ├── alpine/
-   │   └── mkimage.sh       # Alpine rootfs builder script
    ├── recipes/
    │   ├── java/            # Java variants for Debian
-   │   └── alpine/          # Alpine-specific recipes
    ├── scripts/             # Maintenance scripts
    ├── debian/dist/         # Output images
    └── download/            # Temporary downloads

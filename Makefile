@@ -29,7 +29,7 @@ help:
 	@echo "What's up! Here's what you can build:"
 	@echo
 	@echo "  help               - Show this help (you're looking at it!)"
-	@echo "  all                - Build everything (Debian + Alpine images)"
+	@echo "  all                - Build everything (Debian images)"
 	@echo "  check-dependencies - Make sure you've got all the tools installed"
 	@echo "  clean              - Clean up build artifacts and downloads"
 	@echo "  list-vars          - Show all Makefile variables"
@@ -61,17 +61,6 @@ help:
 	@echo
 	@echo "|debian11-python-3.9.18|"
 	@echo
-	@echo " ============================"
-	@echo "  ** Alpine Linux targets ** "
-	@echo " ============================"
-	@echo
-	@echo "|all-alpine|"
-	@echo
-	@echo "|alpine3.19|"
-	@echo "|alpine3.19-java17|"
-	@echo "|alpine3.19-java11|"
-	@echo "|alpine3.19-java8|"
-	@echo "|alpine3.19-nodejs|"
 
 # ==============================================================================
 # Build Configuration
@@ -92,9 +81,6 @@ DEBIAN_BUILD_SCRIPT := $(DEBIAN_DIR)/mkimage.sh
 DEBIAN_KEYS_DIR := $(DEBIAN_DIR)/keys
 DEBIAN_KEYRING := $(DEBIAN_KEYS_DIR)/debian-archive-keyring.gpg
 
-# Alpine configuration
-ALPINE_DIR := $(SRCDIR)/alpine
-ALPINE_BUILD_SCRIPT := $(ALPINE_DIR)/mkimage.sh
 
 # Validate keyring exists
 ifeq (,$(wildcard $(DEBIAN_KEYRING)))
@@ -142,7 +128,6 @@ RECIPES_DIR := $(SRCDIR)/recipes
 JAVA_RECIPES := $(RECIPES_DIR)/java/
 PYTHON_RECIPES := $(RECIPES_DIR)/python/
 NODEJS_RECIPES := $(RECIPES_DIR)/nodejs/
-ALPINE_RECIPES := $(RECIPES_DIR)/alpine/
 
 # ==============================================================================
 # Build Targets
@@ -153,16 +138,15 @@ ALPINE_RECIPES := $(RECIPES_DIR)/alpine/
         debian11-java-slim-gradle debian11-nodejs-23.11.0 \
         debian11-python-3.9.18
 
-.PHONY: all all-debian all-alpine
+.PHONY: all all-debian
 .PHONY: help examples-dir check-dependencies clean list-vars debian11-graal-slim-maven debian11-graal-slim-gradle debian11-php-8.2.12
-all: all-debian all-alpine
+all: all-debian
 
 all-debian: debian11 debian11-java debian11-java-slim debian11-graal \
      debian11-graal-slim debian11-corretto debian11-java-slim-maven \
      debian11-java-slim-gradle debian11-nodejs-23.11.0 \
      debian11-python-3.9.18
 
-all-alpine: alpine3.19 alpine3.19-java17 alpine3.19-java11 alpine3.19-java8 alpine3.19-nodejs
 
 debian11:
 	$(PRINT_HEADER)
@@ -297,51 +281,12 @@ debian11-php-8.2.12:
 			--recipes=$(RECIPES_DIR)/php/php.sh \
 			--scripts=$(SCRIPTS)/security-scan.sh
 
-# ==============================================================================
-# Alpine Linux Build Targets
-# ==============================================================================
 
-.PHONY: alpine3.19 alpine3.19-java17 alpine3.19-java11 alpine3.19-java8 alpine3.19-nodejs
 
-alpine3.19:
-	$(PRINT_HEADER)
-	$(ALPINE_BUILD_SCRIPT) \
-			--alpine-version=v3.19 \
-			--output-dir=$(SRCDIR)/dist \
-			--packages="alpine-base" \
-			--mirror="http://dl-cdn.alpinelinux.org/alpine"
 
-alpine3.19-java17:
-	$(PRINT_HEADER)
-	$(ALPINE_BUILD_SCRIPT) \
-			--alpine-version=v3.19 \
-			--output-dir=$(SRCDIR)/dist \
-			--packages="alpine-base openjdk17" \
-			--mirror="http://dl-cdn.alpinelinux.org/alpine"
 
-alpine3.19-java11:
-	$(PRINT_HEADER)
-	$(ALPINE_BUILD_SCRIPT) \
-			--alpine-version=v3.19 \
-			--output-dir=$(SRCDIR)/dist \
-			--packages="alpine-base openjdk11" \
-			--mirror="http://dl-cdn.alpinelinux.org/alpine"
 
-alpine3.19-java8:
-	$(PRINT_HEADER)
-	$(ALPINE_BUILD_SCRIPT) \
-			--alpine-version=v3.19 \
-			--output-dir=$(SRCDIR)/dist \
-			--packages="alpine-base openjdk8" \
-			--mirror="http://dl-cdn.alpinelinux.org/alpine"
 
-alpine3.19-nodejs:
-	$(PRINT_HEADER)
-	$(ALPINE_BUILD_SCRIPT) \
-			--alpine-version=v3.19 \
-			--output-dir=$(SRCDIR)/dist \
-			--packages="alpine-base nodejs npm" \
-			--mirror="http://dl-cdn.alpinelinux.org/alpine"
 
 
 # ==============================================================================
