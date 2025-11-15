@@ -118,9 +118,9 @@ jobs:
             exit 1
           fi
           echo "Importing ${TAR_FILE} into Docker as ${MATRIX_TARGET}:latest"
-          if ! skopeo copy --insecure-policy "oci-archive:${TAR_FILE}" "docker:${MATRIX_TARGET}:latest"; then
+          if ! skopeo copy --insecure-policy "oci-archive:${TAR_FILE}" "docker://${MATRIX_TARGET}:latest"; then
             echo "OCI import failed, trying docker-archive..."
-            skopeo copy --insecure-policy "docker-archive:${TAR_FILE}" "docker:${MATRIX_TARGET}:latest"
+            skopeo copy --insecure-policy "docker-archive:${TAR_FILE}" "docker://${MATRIX_TARGET}:latest"
           fi
           docker image inspect "${MATRIX_TARGET}:latest" >/dev/null
 
@@ -138,46 +138,9 @@ jobs:
           set -euxo pipefail
           make test
 
-      - name: Install GPG
-        shell: bash
-        run: |
-          set -euxo pipefail
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends gnupg
 
-      - name: Import GPG private key
-        if: success()
-        shell: bash
-        env:
-          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
-        run: |
-          set -euxo pipefail
-          if [ -z "${GPG_PRIVATE_KEY}" ]; then
-            echo "GPG_PRIVATE_KEY secret is not set" >&2
-            exit 1
-          fi
-          echo "${GPG_PRIVATE_KEY}" | gpg --batch --import
-          gpg --batch --list-secret-keys || true
 
-      - name: Sign built image tarballs with GPG
-        if: success()
-        shell: bash
-        env:
-          TAR_DIR: debian/dist/${{ matrix.target }}
-          GPG_KEY_ID: ${{ secrets.GPG_KEY_ID }}
-          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-        run: |
-          set -euxo pipefail
-          python3 -c 'import os,glob,sys; from scripts.gpg import sign_tarball_with_gpg; tar_dir=os.environ["TAR_DIR"]; key_id=os.environ.get("GPG_KEY_ID"); passphrase=os.environ.get("GPG_PASSPHRASE"); files=glob.glob(os.path.join(tar_dir,"*.tar")); sys.exit("GPG_KEY_ID is required.") if not key_id else None; sys.exit(f"No tar files found in {tar_dir}") if not files else None; [print(f"Signing {f}") or sign_tarball_with_gpg(f, key_id, passphrase=passphrase, dry_run=False, force=True) for f in files]'
 
-      - name: Upload GPG signatures
-        if: success()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.target }}-gpg-signatures
-          path: "debian/dist/${{ matrix.target }}/*.tar.asc"
-          if-no-files-found: error
-          retention-days: 14
 
       - name: Upload test logs
         if: always()
