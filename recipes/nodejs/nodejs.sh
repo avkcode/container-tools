@@ -31,10 +31,13 @@ install_nodejs() {
     tar -xJf "${tmp_tar}" --strip-components=1 --directory /opt/nodejs
 
     echo "==> Creating symlinks"
-    mkdir -p /usr/local/bin
+    mkdir -p /usr/local/bin /usr/bin
     ln -sf /opt/nodejs/bin/node /usr/local/bin/node
     ln -sf /opt/nodejs/bin/npm /usr/local/bin/npm
     ln -sf /opt/nodejs/bin/npx /usr/local/bin/npx
+    ln -sf /opt/nodejs/bin/node /usr/bin/node
+    ln -sf /opt/nodejs/bin/npm /usr/bin/npm
+    ln -sf /opt/nodejs/bin/npx /usr/bin/npx
 
     echo "==> Writing /etc/profile.d/nodejs.sh"
     mkdir -p /etc/profile.d
@@ -46,6 +49,12 @@ EOF
 
     echo "==> Verifying installation"
     /opt/nodejs/bin/node --version >/dev/null
+    if ! command -v node >/dev/null 2>&1; then
+        echo "ERROR: 'node' is not on PATH after installation" >&2
+        ls -l /usr/local/bin/node /usr/bin/node || true
+        exit 1
+    fi
+    node --version >/dev/null
 
     echo "==> Cleanup"
     DEBIAN_FRONTEND=noninteractive apt-get purge -y xz-utils curl || true
