@@ -7,7 +7,7 @@ PYTHON_SHA="${PYTHON_SHA:-01597db0132c1cf7b331eff68ae09b5a235a3c3caa9c944c29cac7
 PYTHON_URL="${PYTHON_URL:-https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tar.xz}"
 
 python() {
-    header "Installing build dependencies"
+    header "Installing build dependencies inside target"
     local build_deps=(
         build-essential
         zlib1g-dev
@@ -19,8 +19,8 @@ python() {
         liblzma-dev
         tk-dev
     )
-    run apt-get update
-    run apt-get install -y --no-install-recommends "${build_deps[@]}"
+    run chroot "$target" apt-get update
+    run chroot "$target" apt-get install -y --no-install-recommends "${build_deps[@]}"
 
     header "Downloading Python ${PYTHON_VERSION}"
     if [[ ! -f "${DOWNLOAD}/Python-${PYTHON_VERSION}.tar.xz" ]]; then
@@ -30,32 +30,29 @@ python() {
     check_sum "${PYTHON_SHA}" "${DOWNLOAD}/Python-${PYTHON_VERSION}.tar.xz" ||
         die "Checksum verification failed"
 
-    header "Building Python ${PYTHON_VERSION}"
-    run mkdir -p "${DOWNLOAD}/python-build"
-    run tar -xJf "${DOWNLOAD}/Python-${PYTHON_VERSION}.tar.xz" -C "${DOWNLOAD}/python-build" --strip-components=1
-    
-    pushd "${DOWNLOAD}/python-build" >/dev/null
-    
-    # Fix for modern systems
-    run curl -o config.sub 'https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub;hb=HEAD'
-    run curl -o config.guess 'https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess;hb=HEAD'
-    run chmod +x config.sub config.guess
+    header "Preparing source tree in target"
+    run mkdir -p "$target/usr/src/python"
+    run tar -xJf "${DOWNLOAD}/Python-${PYTHON_VERSION}.tar.xz" -C "$target/usr/src/python" --strip-components=1
 
-    # Configure with optimizations
-    ./configure \
-        --prefix=/usr \
-        --enable-optimizations \
-        --enable-shared \
-        --with-system-ffi \
-        --with-ensurepip=install \
-        LDFLAGS="-Wl,-rpath=/usr/lib"
+    # Refresh config.sub and config.guess for broader arch support
+    run curl -fsSL -o "$target/usr/src/python/config.sub" 'https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub;hb=HEAD'
+    run curl -fsSL -o "$target/usr/src/python/config.guess" 'https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess;hb=HEAD'
+    run chmod +x "$target/usr/src/python/config.sub" "$target/usr/src/python/config.guess"
 
-    # Build with limited parallelism
-    run make -j$(($(nproc)/2)) || run make
-    
-    # Install into target
-    run make install DESTDIR="$target"
-    popd >/dev/null
+    header "Building Python ${PYTHON_VERSION} inside chroot"
+    run chroot "$target" /bin/bash -o pipefail -ec '
+        set -euo pipefail
+        cd /usr/src/python
+        ./configure \
+            --prefix=/usr \
+            --enable-optimizations \
+            --enable-shared \
+            --with-system-ffi \
+            --with-ensurepip=install \
+            LDFLAGS="-Wl,-rpath=/usr/lib"
+        make -j"$(($(nproc)/2))" || make
+        make install
+    '
 
     header "Creating symlinks"
     run ln -sf "/usr/bin/python${PYTHON_MINOR}" "$target/usr/bin/python3"
@@ -63,17 +60,18 @@ python() {
     run ln -sf "/usr/bin/pip${PYTHON_MINOR}" "$target/usr/bin/pip3"
     run ln -sf "/usr/bin/pip${PYTHON_MINOR}" "$target/usr/bin/pip"
 
-    header "Cleaning up"
-    run apt-get purge -y "${build_deps[@]}"
-    run apt-get autoremove -y
-    run apt-get clean
-    run rm -rf "${DOWNLOAD}/python-build" /var/lib/apt/lists/*
+    header "Cleaning up build dependencies and caches in target"
+    run chroot "$target" apt-get purge -y "${build_deps[@]}"
+    run chroot "$target" apt-get autoremove -y
+    run chroot "$target" apt-get clean
+    run rm -rf "$target/var/lib/apt/lists/"*
+    run rm -rf "$target/usr/src/python"
  
     header "Verifying installation"
-    if [ -f "$target/usr/bin/python${PYTHON_MINOR}" ]; then
-        info "Python found at /usr/bin/python${PYTHON_MINOR}"
+    if chroot "$target" /usr/bin/python3 --version >/dev/null 2>&1; then
+        info "Python found via chroot at /usr/bin/python3"
     else
-        die "Python installation failed - binary not found"
+        die "Python installation failed - /usr/bin/python3 not working"
     fi
 
     info "Python ${PYTHON_VERSION} installed successfully"
