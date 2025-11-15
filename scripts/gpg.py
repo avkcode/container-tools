@@ -4,6 +4,7 @@ import os
 import subprocess
 import argparse
 import getpass
+import sys
 from pathlib import Path
 
 # Import common utilities
@@ -113,7 +114,7 @@ def verify_tarball_with_gpg(tar_file, sig_file, dry_run=False):
         else:
             result = subprocess.run(
                 gpg_cmd,
-                check=True,
+                check=False,
                 text=True,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
@@ -176,15 +177,27 @@ def main():
     if not check_program_installed("gpg", "https://gnupg.org/download/"):
         exit(1)
 
-    # Determine if the input is a file or directory
-    path = Path(args.directory)
-    if path.is_file() and path.suffix == ".tar":
-        tar_files = [path]  # Treat as a single file
-    elif path.is_dir():
-        tar_files = find_tar_files(path)  # Search for .tar files in the directory
+    # Determine if the input is a file, transport spec, or directory
+    input_str = str(args.directory)
+    tar_files = []
+    if input_str.startswith("docker-archive:") or input_str.startswith("oci-archive:"):
+        # Support skopeo-style transport spec by extracting local tar path
+        tar_path_str = input_str.split(":", 1)[1]
+        tar_path = Path(tar_path_str)
+        if tar_path.is_file() and tar_path.suffix == ".tar":
+            tar_files = [tar_path]
+        else:
+            logger.error(f"Invalid input: {args.directory} transport path is not a .tar file.")
+            exit(1)
     else:
-        logger.error(f"Invalid input: {args.directory} is neither a .tar file nor a directory.")
-        exit(1)
+        path = Path(args.directory)
+        if path.is_file() and path.suffix == ".tar":
+            tar_files = [path]  # Treat as a single file
+        elif path.is_dir():
+            tar_files = find_tar_files(path)  # Search for .tar files in the directory
+        else:
+            logger.error(f"Invalid input: {args.directory} is neither a .tar file nor a directory.")
+            exit(1)
 
     if not tar_files:
         logger.info("No .tar files found. Exiting.")
@@ -218,5 +231,4 @@ def main():
     logger.info("All tarballs have been processed successfully.")
 
 if __name__ == "__main__":
-    import sys  # Import sys to check argument length
     main()
