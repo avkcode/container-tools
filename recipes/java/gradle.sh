@@ -33,19 +33,24 @@ install_gradle() {
         unzip -q "$tmpfile" -d /opt
     elif command -v bsdtar >/dev/null 2>&1; then
         bsdtar -xf "$tmpfile" -C /opt
-    elif [[ -n "${JAVA_HOME:-}" && -x "${JAVA_HOME}/bin/jar" ]]; then
-        mkdir -p /opt/.gradle-extract
-        ( cd /opt/.gradle-extract && "${JAVA_HOME}/bin/jar" xf "$tmpfile" )
-        mv /opt/.gradle-extract/* /opt/
-        rmdir /opt/.gradle-extract
-    elif [[ -x "/opt/jdk/bin/jar" ]]; then
-        mkdir -p /opt/.gradle-extract
-        ( cd /opt/.gradle-extract && /opt/jdk/bin/jar xf "$tmpfile" )
-        mv /opt/.gradle-extract/* /opt/
-        rmdir /opt/.gradle-extract
     else
-        echo "ERROR: Could not find unzip, bsdtar, or jar to extract Gradle." >&2
-        exit 1
+        # Fallback to jar, ensuring JAVA_HOME and LD_LIBRARY_PATH are set correctly
+        JH="${JAVA_HOME:-}"
+        if [[ -z "$JH" && -d "/opt/jdk" ]]; then
+            JH="/opt/jdk"
+        fi
+        if [[ -n "$JH" && -x "$JH/bin/jar" ]]; then
+            mkdir -p /opt/.gradle-extract
+            (
+              cd /opt/.gradle-extract
+              env LD_LIBRARY_PATH="${JH}/lib:${JH}/lib/jli:${LD_LIBRARY_PATH:-}" "$JH/bin/jar" xf "$tmpfile"
+            )
+            mv /opt/.gradle-extract/* /opt/
+            rmdir /opt/.gradle-extract
+        else
+            echo "ERROR: Could not find unzip, bsdtar, or a working JDK jar to extract Gradle." >&2
+            exit 1
+        fi
     fi
 
     # Normalize install path and expose gradle on PATH
