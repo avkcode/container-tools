@@ -168,23 +168,7 @@ jobs:
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
           set -euxo pipefail
-          python3 - <<'PY'
-import os, glob
-from scripts.gpg import sign_tarball_with_gpg
-
-tar_dir = os.environ["TAR_DIR"]
-key_id = os.environ.get("GPG_KEY_ID")
-if not key_id:
-    raise SystemExit("GPG_KEY_ID is required.")
-passphrase = os.environ.get("GPG_PASSPHRASE")
-
-files = glob.glob(os.path.join(tar_dir, "*.tar"))
-if not files:
-    raise SystemExit(f"No tar files found in {tar_dir}")
-for f in files:
-    print(f"Signing {f}")
-    sign_tarball_with_gpg(f, key_id, passphrase=passphrase, dry_run=False, force=True)
-PY
+          python3 -c 'import os,glob,sys; from scripts.gpg import sign_tarball_with_gpg; tar_dir=os.environ["TAR_DIR"]; key_id=os.environ.get("GPG_KEY_ID"); passphrase=os.environ.get("GPG_PASSPHRASE"); files=glob.glob(os.path.join(tar_dir,"*.tar")); sys.exit("GPG_KEY_ID is required.") if not key_id else None; sys.exit(f"No tar files found in {tar_dir}") if not files else None; [print(f"Signing {f}") or sign_tarball_with_gpg(f, key_id, passphrase=passphrase, dry_run=False, force=True) for f in files]'
 
       - name: Upload GPG signatures
         if: success()
