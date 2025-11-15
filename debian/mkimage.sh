@@ -358,7 +358,7 @@ main() {
   LANG=C DEBOOTSTRAP_DIR="$debootstrap_dir" run debootstrap --no-check-gpg --keyring "$keyring" --variant "$variant" --include="$debootstrap_include" --foreign "$release" "$target"
   
   # Run second stage with LANG=C to avoid locale warnings
-  LANG=C DEBOOTSTRAP_DIR="$debootstrap_dir" run chroot "$target" /debootstrap/debootstrap --second-stage
+  LANG=C run chroot "$target" /debootstrap/debootstrap --second-stage
 
   header "Configuring apt repos"
   echo "deb $repo_url $release main" > "$target"/etc/apt/sources.list

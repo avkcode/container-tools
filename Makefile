@@ -26,7 +26,7 @@ endif
 # ==============================================================================
 help:
 	@echo
-	@echo "Hey! Here's what you can do with this Makefile:"
+	@echo "What's up! Here's what you can build:"
 	@echo
 	@echo "  help               - Show this help (you're looking at it!)"
 	@echo "  all                - Build everything (Debian + Alpine images)"
