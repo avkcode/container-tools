@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 
-# Node.js LTS version
+# Node.js Current (23.x) version
 NODE_VERSION="${NODE_VERSION:-23.11.0}"
 NODE_SHA="${NODE_SHA:-fa9ae28d8796a6cfb7057397e1eea30ca1c61002b42b8897f354563a254e7cf5}"
 NODE_URL="${NODE_URL:-https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz}"
 
 nodejs() {
-    # Install required tools
-    run apt-get update
-    run apt-get install -y xz-utils ca-certificates
+    # Install required tools inside target chroot (avoid host modifications)
+    run chroot "$target" apt-get update
+    run chroot "$target" apt-get install -y --no-install-recommends xz-utils ca-certificates
     
     # Download Node.js
     if [[ ! -f ${DOWNLOAD}/node-v${NODE_VERSION}.tar.xz ]]; then
@@ -39,13 +39,17 @@ nodejs() {
         die "Node.js verification failed"
     fi
 
-    # Clean up apt cache and temporary files
-    run apt-get remove -y xz-utils
-    run apt-get autoremove -y
-    run apt-get clean
-    run rm -rf /var/lib/apt/lists/*
+    # Clean up apt cache and temporary files inside target
+    run chroot "$target" apt-get purge -y xz-utils
+    run chroot "$target" apt-get autoremove -y
+    run chroot "$target" apt-get clean
+    run rm -rf "$target"/var/lib/apt/lists/*
 
-    # Set up environment variables (for when container runs)
-    echo 'export PATH=/opt/nodejs/bin:$PATH' >> "$target"/etc/profile
-    echo 'export NODE_HOME=/opt/nodejs' >> "$target"/etc/profile
+    # Write environment variables to profile.d for container runtime
+    run install -d -m 0755 "$target/etc/profile.d"
+    cat > "$target/etc/profile.d/nodejs.sh" <<'EOF'
+export NODE_HOME=/opt/nodejs
+export PATH=$NODE_HOME/bin:$PATH
+EOF
+    run chmod 644 "$target/etc/profile.d/nodejs.sh"
 }
