@@ -47,6 +47,31 @@ Notes:
 EOF
   exit 1
 }
+# Mount essential pseudo-filesystems into the target chroot
+mount_target_fs() {
+  mkdir -p "$target/proc" "$target/sys" "$target/dev/pts"
+  if ! mountpoint -q "$target/proc"; then
+    run mount -t proc proc "$target/proc"
+  fi
+  if ! mountpoint -q "$target/sys"; then
+    run mount -t sysfs sysfs "$target/sys"
+  fi
+  if ! mountpoint -q "$target/dev"; then
+    run mount --bind /dev "$target/dev"
+  fi
+  if ! mountpoint -q "$target/dev/pts"; then
+    run mount --bind /dev/pts "$target/dev/pts"
+  fi
+}
+
+# Unmount pseudo-filesystems from the target chroot (best-effort)
+umount_target_fs() {
+  for mp in "$target/dev/pts" "$target/dev" "$target/sys" "$target/proc"; do
+    if mountpoint -q "$mp"; then
+      run umount "$mp" || run umount -l "$mp" || true
+    fi
+  done
+}
 
 # Parse command-line arguments
 OPTIND=1
@@ -348,6 +373,8 @@ main() {
   run cp --archive "$scriptdir"/debootstrap/* "$debootstrap_dir/scripts"
 
   header "Using debootstrap to create rootfs"
+  # Ensure required pseudo-filesystems are mounted for chroot operations
+  mount_target_fs
   # Always include perl-base in debootstrap to fix pkgdetails error (minimal /usr/bin/perl for second-stage)
   local debootstrap_include="perl-base"
   if [[ -n "${debootstrap_packages}" ]]; then
@@ -413,6 +440,8 @@ main() {
   header "Remove optional files to reduce the size of the directory"
   run chroot "$target" apt-get clean
   run chroot "$target" apt-get --yes autoremove
+  # Unmount any mounted pseudo-filesystems before removing directories
+  umount_target_fs
   run rm --recursive --force "$target"/dev "$target"/proc
   run mkdir --parents "$target"/dev "$target"/proc
   run rm --recursive --force "$target"/usr/bin/pinky
