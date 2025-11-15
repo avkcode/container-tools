@@ -145,7 +145,7 @@ NODEJS_RECIPES := $(RECIPES_DIR)/nodejs/
         debian11-python-3.9.18 debian11-cuda-runtime
 
 .PHONY: all all-debian
-.PHONY: help examples-dir check-dependencies clean list-vars debian11-graal-slim-maven debian11-graal-slim-gradle debian11-php-8.2.12
+.PHONY: help examples-dir check-dependencies clean list-vars debian11-graal-slim-maven debian11-graal-slim-gradle
 all: all-debian
 
 all-debian: debian11 debian11-java debian11-java-slim debian11-graal \
@@ -276,16 +276,6 @@ debian11-python-3.9.18:
                         --release=$(RELEASE) \
                         --recipes=$(PYTHON_RECIPES)/python.sh \
                         $(SECURITY_SCAN_ARG)
-
-debian11-php-8.2.12:
-	$(PRINT_HEADER)
-	$(DEBIAN_BUILD_SCRIPT) \
-			--name=$@ \
-			--keyring=$(DEBIAN_KEYRING) \
-			--variant=$(VARIANT) \
-			--release=$(RELEASE) \
-			--recipes=$(RECIPES_DIR)/php/php.sh \
-			$(SECURITY_SCAN_ARG)
 
 debian11-cuda-runtime:
 	$(PRINT_HEADER)
