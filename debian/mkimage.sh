@@ -355,10 +355,19 @@ main() {
   fi
   
   # Run first stage with LANG=C to avoid locale warnings
-  LANG=C DEBOOTSTRAP_DIR="$debootstrap_dir" run debootstrap --no-check-gpg --keyring "$keyring" --variant "$variant" --include="$debootstrap_include" --foreign "$release" "$target"
+  # Run debootstrap. Prefer single-stage unless USE_DEBOOTSTRAP_FOREIGN=1
+  if [[ "${USE_DEBOOTSTRAP_FOREIGN:-}" == "1" ]]; then
+    # Two-stage debootstrap for cross-arch setups
+    LANG=C DEBOOTSTRAP_DIR="$debootstrap_dir" run debootstrap --no-check-gpg --keyring "$keyring" --variant "$variant" --include="$debootstrap_include" --foreign "$release" "$target"
+  else
+    # Single-stage debootstrap when host arch matches target
+    LANG=C DEBOOTSTRAP_DIR="$debootstrap_dir" run debootstrap --no-check-gpg --keyring "$keyring" --variant "$variant" --include="$debootstrap_include" "$release" "$target"
+  fi
   
   # Run second stage with LANG=C to avoid locale warnings
-  LANG=C run chroot "$target" /debootstrap/debootstrap --second-stage
+  if [[ "${USE_DEBOOTSTRAP_FOREIGN:-}" == "1" ]]; then
+    LANG=C run chroot "$target" /debootstrap/debootstrap --second-stage
+  fi
 
   header "Configuring apt repos"
   echo "deb $repo_url $release main" > "$target"/etc/apt/sources.list
