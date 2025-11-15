@@ -138,7 +138,6 @@ Component versions (override as needed):
 - GRADLE_VERSION (default: 7.4.2)
 - NODE_VERSION (default: 23.11.0)
 - PYTHON_VERSION (default: 3.9.18)
-- KAFKA_VERSION (default: 4.0.0)
 
 Build metadata (auto-set, but overridable):
 

@@ -7,7 +7,6 @@ This directory contains practical examples demonstrating how to use Container To
 - **Debian**: Basic Debian image creation and customization
 - **Java**: Java application containerization with different JVM variants
 - **NodeJS**: NodeJS application deployment
-- **Kafka**: Kafka cluster setup and configuration
 - **Security**: Image signing and verification
 - **Testing**: Container structure testing
 
