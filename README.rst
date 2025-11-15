@@ -86,7 +86,7 @@ Available targets:
    debian11-graal-slim-gradle
    debian11-java-kafka
    debian11-java-slim-kafka
-   debian11-nodejs
+   debian11-nodejs-23.11.0
 
 Using Built Images
 ~~~~~~~~~~~~~~~~~
@@ -165,7 +165,7 @@ Repository Structure
    │   ├── kafka/           # Kafka installation
    │   └── alpine/          # Alpine-specific recipes
    ├── scripts/             # Maintenance scripts
-   ├── dist/                # Output images
+   ├── debian/dist/         # Output images
    └── download/            # Temporary downloads
 
 GPG
@@ -226,6 +226,14 @@ Simulate the signing process without executing commands:
 
    ./scripts/cosign.py --directory=path/to/tar/files --dry-run
 
+Registry vs Local Signing
+
+Cosign typically signs images that have been pushed to a container registry and references them by digest. If you prefer not to push, you can sign local artifacts using OCI references:
+- ocidir:/path/to/oci-directory
+- oci-archive:/path/to/image.tar
+
+The helper script at ./scripts/cosign.py will import filesystem tarballs and tag them locally; when --registry is provided it will push before signing. Without a registry, it will sign using the local image ID.
+
 Step 5: Verify the Signatures
 
 After signing, you can verify the signatures using cosign:
@@ -250,11 +258,13 @@ Install container-structure-test:
    chmod +x container-structure-test-linux-amd64
    sudo mv container-structure-test-linux-amd64 /usr/local/bin/container-structure-test
 
-Test a single image with a specific config:
+Image naming and test configs:
+
+Each build target creates a tarball at debian/dist/<name>/<name>.tar and, when imported, a local Docker image tagged as <name>. The Makefile's test target will automatically import the tarball if the image tag does not exist. Test configurations are located at test/<name>.yaml and should reference the same image tag.
 
 .. code-block:: bash
 
-   ./scripts/test.py --image <IMAGE ID> --config test/debian11-nodejs-23.11.0.yaml
+   ./scripts/test.py --image debian11-nodejs-23.11.0 --config test/debian11-nodejs-23.11.0.yaml
 
 Examples
 --------
