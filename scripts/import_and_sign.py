@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import os
 import sys
 from pathlib import Path
 
@@ -63,8 +64,10 @@ def main():
     if not imported:
         sys.exit(1)
 
-    # Sign the tarball using GPG
-    if args.gpg_key_id:
+    # Sign the tarball using GPG (skipped in GitHub Actions)
+    if os.environ.get("GITHUB_ACTIONS") == "true":
+        logger.info("Detected GitHub Actions; skipping GPG signing in CI.")
+    elif args.gpg_key_id:
         sign_tarball_with_gpg(
             args.tar_file,
             gpg_key_id=args.gpg_key_id,

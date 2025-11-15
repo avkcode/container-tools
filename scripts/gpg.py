@@ -217,6 +217,10 @@ def main():
                 continue
             verify_tarball_with_gpg(tar_file, sig_file, dry_run=args.dry_run)
         else:
+            # Skip signing in GitHub Actions to avoid handling secrets in CI
+            if os.environ.get("GITHUB_ACTIONS") == "true":
+                logger.info("Detected GitHub Actions; skipping GPG signing in CI.")
+                continue
             if not args.gpg_key_id:
                 logger.error("GPG key ID (--gpg-key-id) is required for signing.")
                 exit(1)

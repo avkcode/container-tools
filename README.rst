@@ -434,3 +434,30 @@ Contributions are welcome. Please submit issues or pull requests for:
 - Additional package recipes
 - Security improvements
 - Documentation enhancements
+
+GitHub Actions CI pipeline
+--------------------------
+
+The repository includes a GitHub Actions workflow that builds images and publishes artifacts without signing them.
+
+Key points:
+
+- CI builds selected targets using Makefile tasks and produces rootfs/image tarballs under debian/dist/.../
+- Artifacts are uploaded to the workflow for later download and verification
+- CI does not perform signing to avoid handling secrets in the pipeline
+- Tools detect the GitHub Actions environment and automatically skip signing
+
+Importing tarballs locally with skopeo:
+
+.. code-block:: bash
+
+   skopeo copy --insecure-policy docker-archive:/path/to/image.tar docker://yourrepo/yourimage:tag
+
+Sign locally after downloading artifacts:
+
+.. code-block:: bash
+
+   ./scripts/gpg.py --directory /path/to/tar/files --gpg-key-id YOUR_KEY_ID
+   ./scripts/cosign.py --directory /path/to/tar/files --key cosign.key
+
+This approach keeps CI secure and reproducible while letting you apply signatures from a controlled environment.
