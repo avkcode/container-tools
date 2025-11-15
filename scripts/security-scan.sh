@@ -15,11 +15,15 @@ warning() {
 
 usage() {
     cat <<EOF
-Usage: security-scan.sh --target <path> [--dist <dir>]
+Usage: security-scan.sh --target <path> [--dist <dir>] [--skip]
 
 Options:
   --target PATH   Filesystem path to scan (required unless 'target' env is set)
   --dist   DIR    Output directory for results (default: ./dist)
+  --skip          Skip the scan and exit successfully (can also set CT_SKIP_SECURITY_SCAN=1)
+
+Environment:
+  CT_SKIP_SECURITY_SCAN   When set to 1/true/yes, the scan is skipped.
 
 Notes:
   - Returns exit code 1 when CRITICAL vulnerabilities are found.
@@ -32,6 +36,7 @@ main() {
 
     local SCAN_TARGET=""
     local DIST_DIR="./dist"
+    local SKIP="${CT_SKIP_SECURITY_SCAN:-}"
 
     # Parse args
     while [[ $# -gt 0 ]]; do
@@ -52,6 +57,10 @@ main() {
                 DIST_DIR="${2:-./dist}"
                 shift 2
                 ;;
+            -s|--skip)
+                SKIP="1"
+                shift
+                ;;
             -h|--help)
                 usage
                 return 0
@@ -69,6 +78,16 @@ main() {
     fi
     if [[ -z "${DIST_DIR}" ]]; then
         DIST_DIR="${dist:-./dist}"
+    fi
+
+    # Optional: allow disabling the scan entirely
+    if [[ -n "${SKIP}" ]]; then
+        case "${SKIP,,}" in
+            1|true|yes)
+                warning "Security scan disabled via CT_SKIP_SECURITY_SCAN or --skip. Skipping."
+                return 0
+                ;;
+        esac
     fi
 
     # Check if trivy is installed
