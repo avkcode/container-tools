@@ -128,7 +128,7 @@ Firecracker requires bootable rootfs image and Linux Kernel. To create rootfs an
    bash tools/create-debian-rootfs.sh
 
 It should produce ``firecracker-rootfs.ext4`` and ``vmlinux`` files. ``vm-config.json`` is used for VM boot options.
-If you want to compile custom Kernel use ``tools\download-and-build-kernel.sh`` script.
+If you want to compile custom Kernel use ``tools/download-and-build-kernel.sh`` script.
 
 2. Configure networking:
 
@@ -265,6 +265,7 @@ For practical examples of how to use Container Tools, see the `examples/` direct
 - Java application containerization
 - Security signing and verification
 - Container structure testing
+- End-to-end build → scan → test → sign → verify flow
 
 Each example includes step-by-step instructions and sample commands.
 
