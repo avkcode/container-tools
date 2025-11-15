@@ -47,7 +47,13 @@ jobs:
         run: |
           set -euxo pipefail
           sudo apt-get update
-          sudo apt-get install -y debootstrap unzip curl perl trivy
+          sudo apt-get install -y --no-install-recommends debootstrap unzip curl perl gnupg ca-certificates
+          # Install Trivy from the official Aqua Security APT repo (required on Ubuntu 24.04/noble)
+          sudo install -m 0755 -d /usr/share/keyrings
+          curl -fsSL https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo gpg --dearmor -o /usr/share/keyrings/trivy.gpg
+          echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb stable main" | sudo tee /etc/apt/sources.list.d/trivy.list >/dev/null
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends trivy
 
       - name: Build image via Makefile target
         shell: bash

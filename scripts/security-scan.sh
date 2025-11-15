@@ -37,6 +37,7 @@ main() {
     local SCAN_TARGET=""
     local DIST_DIR="./dist"
     local SKIP="${CT_SKIP_SECURITY_SCAN:-}"
+    local USE_TRIVY_CONTAINER=""
 
     # Parse args
     while [[ $# -gt 0 ]]; do
@@ -90,11 +91,16 @@ main() {
         esac
     fi
 
-    # Check if trivy is installed
+    # Check if trivy is installed, otherwise fall back to official container if Docker is available
     if ! command -v trivy >/dev/null 2>&1; then
-        warning "Trivy is not installed. Skipping security scan."
-        warning "To enable security scanning, install trivy from https://github.com/aquasecurity/trivy"
-        return 0
+        if command -v docker >/dev/null 2>&1; then
+            info "Trivy not installed; will use the official aquasec/trivy container."
+            USE_TRIVY_CONTAINER="1"
+        else
+            warning "Trivy is not installed and Docker is unavailable. Skipping security scan."
+            warning "To enable security scanning, install trivy from https://github.com/aquasecurity/trivy or install Docker to use the Trivy container."
+            return 0
+        fi
     fi
 
     # Validate target
@@ -107,13 +113,30 @@ main() {
     mkdir -p "${DIST_DIR}"
 
     # Perform the scan using Trivy exit codes directly
-    info "Scanning with trivy (CRITICAL severity): ${SCAN_TARGET}"
     local rc=0
     set +e
-    trivy fs --severity CRITICAL --exit-code 1 --no-progress \
-        --format json --output "${DIST_DIR}/security_scan.json" \
-        "${SCAN_TARGET}"
-    rc=$?
+    if [[ -n "${USE_TRIVY_CONTAINER:-}" ]]; then
+        info "Scanning with Trivy container (CRITICAL severity): ${SCAN_TARGET}"
+        # Resolve absolute paths for Docker volume mounts
+        local TARGET_ABS="${SCAN_TARGET}"
+        [[ "${TARGET_ABS}" = /* ]] || TARGET_ABS="${PWD}/${TARGET_ABS}"
+        local DIST_ABS="${DIST_DIR}"
+        [[ "${DIST_ABS}" = /* ]] || DIST_ABS="${PWD}/${DIST_ABS}"
+
+        docker run --rm \
+            -v "${TARGET_ABS}:/project:ro" \
+            -v "${DIST_ABS}:/out" \
+            aquasec/trivy:latest fs --severity CRITICAL --exit-code 1 --no-progress \
+                --format json --output /out/security_scan.json \
+                /project
+        rc=$?
+    else
+        info "Scanning with trivy (CRITICAL severity): ${SCAN_TARGET}"
+        trivy fs --severity CRITICAL --exit-code 1 --no-progress \
+            --format json --output "${DIST_DIR}/security_scan.json" \
+            "${SCAN_TARGET}"
+        rc=$?
+    fi
     set -euo pipefail
 
     if [[ $rc -eq 0 ]]; then
