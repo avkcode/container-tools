@@ -26,19 +26,19 @@ endif
 # ==============================================================================
 help:
 	@echo
-	@echo "Usage: make <target>"
+	@echo "Hey! Here's what you can do with this Makefile:"
 	@echo
-	@echo "  help               - Display this help message"
-	@echo "  all                - Build all Debian and Alpine images"
-	@echo "  check-dependencies - Verify required tools are installed"
-	@echo "  clean              - Remove all build artifacts and downloads"
-	@echo "  list-vars          - List all Makefile variables and their origins"
-	@echo "  shellcheck         - Validate all bash scripts"
-	@echo "  package   	     - Create tar.gz archive of the directory"
-	@echo "  release            - Create Git tag and GitHub release"
+	@echo "  help               - Show this help (you're looking at it!)"
+	@echo "  all                - Build everything (Debian + Alpine images)"
+	@echo "  check-dependencies - Make sure you've got all the tools installed"
+	@echo "  clean              - Clean up build artifacts and downloads"
+	@echo "  list-vars          - Show all Makefile variables"
+	@echo "  shellcheck         - Lint all bash scripts"
+	@echo "  package   	     - Create a tar.gz of the directory"
+	@echo "  release            - Tag and push a GitHub release"
 	@echo "  archive            - Create git archive of HEAD"
-	@echo "  bundle             - Create git bundle of repository"
-	@echo "  test               - Run structure tests on built container images"
+	@echo "  bundle             - Create git bundle of the repo"
+	@echo "  test               - Run structure tests on container images"
 	@echo
 	@echo " ============================"
 	@echo "  ** Debian Linux targets ** "
@@ -381,7 +381,7 @@ test: ## Run structure tests on built container images
 # ==============================================================================
 # Utility Targets
 # ==============================================================================
-REQUIRED_TOOLS := docker bash grep sed awk debootstrap unzip curl
+REQUIRED_TOOLS := docker bash grep sed awk debootstrap unzip curl perl
 check-dependencies:
 	$(PRINT_HEADER)
 	@echo "Checking required dependencies..."
