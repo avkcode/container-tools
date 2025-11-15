@@ -65,7 +65,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.target }}
-          path: debian/dist/${{ matrix.target }}/**
+          path: "debian/dist/${{ matrix.target }}/**"
           if-no-files-found: error
           retention-days: 14
 
@@ -97,6 +97,32 @@ jobs:
         with:
           name: ${{ matrix.target }}
           path: debian/dist/${{ matrix.target }}
+
+      - name: Install skopeo
+        shell: bash
+        run: |
+          set -euxo pipefail
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends skopeo
+
+      - name: Import image tarball into Docker
+        shell: bash
+        env:
+          MATRIX_TARGET: ${{ matrix.target }}
+        run: |
+          set -euxo pipefail
+          TAR_DIR="debian/dist/${MATRIX_TARGET}"
+          TAR_FILE="$(ls -1 "${TAR_DIR}"/*.tar | head -n1)"
+          if [ -z "${TAR_FILE}" ]; then
+            echo "No tarball found in ${TAR_DIR}" >&2
+            exit 1
+          fi
+          echo "Importing ${TAR_FILE} into Docker as ${MATRIX_TARGET}:latest"
+          if ! skopeo copy --insecure-policy "oci-archive:${TAR_FILE}" "docker:${MATRIX_TARGET}:latest"; then
+            echo "OCI import failed, trying docker-archive..."
+            skopeo copy --insecure-policy "docker-archive:${TAR_FILE}" "docker:${MATRIX_TARGET}:latest"
+          fi
+          docker image inspect "${MATRIX_TARGET}:latest" >/dev/null
 
       - name: Install container-structure-test
         shell: bash
@@ -165,7 +191,7 @@ PY
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.target }}-gpg-signatures
-          path: debian/dist/${{ matrix.target }}/*.tar.asc
+          path: "debian/dist/${{ matrix.target }}/*.tar.asc"
           if-no-files-found: error
           retention-days: 14
 
@@ -174,6 +200,6 @@ PY
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.target }}-test-logs
-          path: debian/dist/${{ matrix.target }}/*.log
+          path: "debian/dist/${{ matrix.target }}/*.log"
           if-no-files-found: warn
           retention-days: 7
