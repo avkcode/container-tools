@@ -55,6 +55,7 @@ help:
 	@echo "  debian11-graal-slim-gradle"
 	@echo "  debian11-nodejs-23.11.0"
 	@echo "  debian11-python-3.9.18"
+	@echo "  debian11-cuda-runtime"
 	@echo
 
 # ==============================================================================
@@ -110,6 +111,16 @@ GIT_REVISION := $(shell git rev-parse --short HEAD 2>/dev/null || echo "unknown"
 # Export for child processes
 export VERSION BUILD_DATE GIT_REVISION
 
+# Toggle inclusion of the security scan script in builds (default: enabled).
+# Set CT_DISABLE_SECURITY_SCAN=1/true/yes to omit passing the scan script to mkimage.sh.
+CT_DISABLE_SECURITY_SCAN ?=
+CT_DISABLE_SECURITY_SCAN_LC := $(shell printf "%s" "$(CT_DISABLE_SECURITY_SCAN)" | tr '[:upper:]' '[:lower:]')
+ifneq (,$(filter 1 true yes,$(CT_DISABLE_SECURITY_SCAN_LC)))
+  SECURITY_SCAN_ARG :=
+else
+  SECURITY_SCAN_ARG := --scripts=$(SCRIPTS)/security-scan.sh
+endif
+
 COLOR_RESET := \033[0m
 COLOR_GREEN := \033[32m
 COLOR_YELLOW := \033[33m
@@ -131,7 +142,7 @@ NODEJS_RECIPES := $(RECIPES_DIR)/nodejs/
 .PHONY: debian11 debian11-java debian11-java-slim debian11-graal \
         debian11-graal-slim debian11-corretto debian11-java-slim-maven \
         debian11-java-slim-gradle debian11-nodejs-23.11.0 \
-        debian11-python-3.9.18
+        debian11-python-3.9.18 debian11-cuda-runtime
 
 .PHONY: all all-debian
 .PHONY: help examples-dir check-dependencies clean list-vars debian11-graal-slim-maven debian11-graal-slim-gradle debian11-php-8.2.12
@@ -150,7 +161,7 @@ debian11:
 			--keyring=$(DEBIAN_KEYRING) \
 			--variant=$(VARIANT) \
 			--release=$(RELEASE) \
-			--scripts=$(SCRIPTS)/security-scan.sh
+			$(SECURITY_SCAN_ARG)
 
 debian11-java:
 	$(PRINT_HEADER)
@@ -160,7 +171,7 @@ debian11-java:
 			--variant=$(VARIANT) \
 			--release=$(RELEASE) \
 			--recipes=$(JAVA_RECIPES)/java.sh \
-			--scripts=$(SCRIPTS)/security-scan.sh
+			$(SECURITY_SCAN_ARG)
 
 debian11-java-slim:
 	$(PRINT_HEADER)
@@ -170,7 +181,7 @@ debian11-java-slim:
 			--variant=$(VARIANT) \
 			--release=$(RELEASE) \
 			--recipes=$(JAVA_RECIPES)/java_slim.sh \
-			--scripts=$(SCRIPTS)/security-scan.sh
+			$(SECURITY_SCAN_ARG)
 
 debian11-graal:
 	$(PRINT_HEADER)
@@ -180,7 +191,7 @@ debian11-graal:
 			--variant=$(VARIANT) \
 			--release=$(RELEASE) \
 			--recipes=$(JAVA_RECIPES)/graalvm.sh \
-			--scripts=$(SCRIPTS)/security-scan.sh
+			$(SECURITY_SCAN_ARG)
 
 debian11-graal-slim:
 	$(PRINT_HEADER)
@@ -190,7 +201,7 @@ debian11-graal-slim:
 			--variant=$(VARIANT) \
 			--release=$(RELEASE) \
 			--recipes=$(JAVA_RECIPES)/graalvm_slim.sh \
-			--scripts=$(SCRIPTS)/security-scan.sh
+			$(SECURITY_SCAN_ARG)
 
 debian11-corretto:
 	$(PRINT_HEADER)
@@ -200,7 +211,7 @@ debian11-corretto:
 			--variant=$(VARIANT) \
 			--release=$(RELEASE) \
 			--recipes=$(JAVA_RECIPES)/corretto.sh \
-			--scripts=$(SCRIPTS)/security-scan.sh
+			$(SECURITY_SCAN_ARG)
 
 debian11-java-slim-maven:
 	$(PRINT_HEADER)
@@ -210,7 +221,7 @@ debian11-java-slim-maven:
 			--variant=$(VARIANT) \
 			--release=$(RELEASE) \
 			--recipes=$(JAVA_RECIPES)/java_slim.sh,$(JAVA_RECIPES)/maven.sh \
-			--scripts=$(SCRIPTS)/security-scan.sh
+			$(SECURITY_SCAN_ARG)
 
 debian11-java-slim-gradle:
 	$(PRINT_HEADER)
@@ -220,7 +231,7 @@ debian11-java-slim-gradle:
 			--variant=$(VARIANT) \
 			--release=$(RELEASE) \
 			--recipes=$(JAVA_RECIPES)/java_slim.sh,$(JAVA_RECIPES)/gradle.sh \
-			--scripts=$(SCRIPTS)/security-scan.sh
+			$(SECURITY_SCAN_ARG)
 
 debian11-graal-slim-maven:
 	$(PRINT_HEADER)
@@ -230,7 +241,7 @@ debian11-graal-slim-maven:
 			--variant=$(VARIANT) \
 			--release=$(RELEASE) \
 			--recipes=$(JAVA_RECIPES)/graalvm_slim.sh,$(JAVA_RECIPES)/maven.sh \
-			--scripts=$(SCRIPTS)/security-scan.sh
+			$(SECURITY_SCAN_ARG)
 
 debian11-graal-slim-gradle:
 	$(PRINT_HEADER)
@@ -240,7 +251,7 @@ debian11-graal-slim-gradle:
 			--variant=$(VARIANT) \
 			--release=$(RELEASE) \
 			--recipes=$(JAVA_RECIPES)/graalvm_slim.sh,$(JAVA_RECIPES)/gradle.sh \
-			--scripts=$(SCRIPTS)/security-scan.sh
+			$(SECURITY_SCAN_ARG)
 
 
 
@@ -254,7 +265,7 @@ debian11-nodejs-23.11.0:
 			--variant=$(VARIANT) \
 			--release=$(RELEASE) \
 			--recipes=$(NODEJS_RECIPES)/nodejs.sh \
-			--scripts=$(SCRIPTS)/security-scan.sh
+			$(SECURITY_SCAN_ARG)
 
 debian11-python-3.9.18:
 	$(PRINT_HEADER)
@@ -264,7 +275,7 @@ debian11-python-3.9.18:
                         --variant=$(VARIANT) \
                         --release=$(RELEASE) \
                         --recipes=$(PYTHON_RECIPES)/python.sh \
-                        --scripts=$(SCRIPTS)/security-scan.sh
+                        $(SECURITY_SCAN_ARG)
 
 debian11-php-8.2.12:
 	$(PRINT_HEADER)
@@ -274,7 +285,17 @@ debian11-php-8.2.12:
 			--variant=$(VARIANT) \
 			--release=$(RELEASE) \
 			--recipes=$(RECIPES_DIR)/php/php.sh \
-			--scripts=$(SCRIPTS)/security-scan.sh
+			$(SECURITY_SCAN_ARG)
+
+debian11-cuda-runtime:
+	$(PRINT_HEADER)
+	$(DEBIAN_BUILD_SCRIPT) \
+			--name=$@ \
+			--keyring=$(DEBIAN_KEYRING) \
+			--variant=$(VARIANT) \
+			--release=$(RELEASE) \
+			--recipes=$(RECIPES_DIR)/gpu/cuda_runtime.sh \
+			$(SECURITY_SCAN_ARG)
 
 
 

@@ -85,6 +85,7 @@ Available targets:
    debian11-graal-slim-maven
    debian11-graal-slim-gradle
    debian11-nodejs-23.11.0
+   debian11-cuda-runtime
 
 Using Built Images
 ~~~~~~~~~~~~~~~~~
@@ -98,6 +99,22 @@ After successful build:
 
    # Run the container
    docker run -it debian11-graal-slim /bin/bash
+
+CUDA Runtime Base (GPU)
+~~~~~~~~~~~~~~~~~~~~~~~
+
+This repository includes a CUDA-ready base image that integrates with the NVIDIA Container Toolkit.
+
+- Target: debian11-cuda-runtime
+- Requires: NVIDIA drivers on the host and the NVIDIA Container Toolkit
+- Run with GPU access:
+
+.. code-block:: bash
+
+   make debian11-cuda-runtime
+   docker run --rm -it --gpus all debian11-cuda-runtime nvidia-smi
+
+Note: The image is minimal and relies on the host toolkit to inject GPU drivers and binaries at runtime. For most workflows, you do not need to bundle CUDA libraries into the image.
 
 Environment Variables
 ---------------------
@@ -392,6 +409,13 @@ Disabling the security scan
   .. code-block:: bash
 
      export CT_SKIP_SECURITY_SCAN=1
+     make debian11-graal-slim
+
+- To omit including the scan script entirely at build time (Makefile will not pass --scripts), set:
+
+  .. code-block:: bash
+
+     export CT_DISABLE_SECURITY_SCAN=1
      make debian11-graal-slim
 
 - Or pass the skip flag if you call the script directly:
