@@ -348,10 +348,10 @@ main() {
   run cp --archive "$scriptdir"/debootstrap/* "$debootstrap_dir/scripts"
 
   header "Using debootstrap to create rootfs"
-  # Always include perl in debootstrap to fix pkgdetails error
-  local debootstrap_include="perl"
+  # Always include perl-base in debootstrap to fix pkgdetails error (minimal /usr/bin/perl for second-stage)
+  local debootstrap_include="perl-base"
   if [[ -n "${debootstrap_packages}" ]]; then
-    debootstrap_include="${debootstrap_packages},perl"
+    debootstrap_include="${debootstrap_packages},perl-base"
   fi
   
   # Run first stage with LANG=C to avoid locale warnings
