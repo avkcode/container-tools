@@ -1,4 +1,8 @@
-schemaVersion: '2.0.0'
+schemaVersion: "2.0.0"
+
+metadataTest:
+  entrypoint: []
+  cmd: []
 
 fileExistenceTests:
   - name: '/usr/local/cuda directory exists'

@@ -1,6 +1,15 @@
-schemaVersion: '2.0.0'
+schemaVersion: "2.0.0"
+
+metadataTest:
+  entrypoint: []
+  cmd: []
 
 commandTests:
-  - name: 'gradle version'
-    command: ['bash', '-lc', 'gradle --version']
+  - name: "java is GraalVM"
+    command: "java"
+    args: ["-version"]
+    exitCode: 0
+  - name: "gradle is available"
+    command: "gradle"
+    args: ["--version"]
     exitCode: 0

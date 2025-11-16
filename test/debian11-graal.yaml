@@ -1,4 +1,8 @@
-schemaVersion: '2.0.0'
+schemaVersion: "2.0.0"
+
+metadataTest:
+  entrypoint: []
+  cmd: []
 
 commandTests:
   - name: 'gu version'
