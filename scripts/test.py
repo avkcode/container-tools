@@ -155,11 +155,10 @@ def main():
                                   "https://github.com/GoogleContainerTools/container-structure-test"):
         exit(1)
 
-    # Validate the Docker image (default to :latest if no tag is provided)
+    # Normalize image reference, but don't hard-fail on preflight inspect; container-structure-test will surface real errors
     normalized_image = normalize_image_ref(args.image)
     if not validate_image(normalized_image):
-        logger.error(f"Docker image not found: {args.image}")
-        exit(1)
+        logger.warning(f"Docker image not found via preflight inspect: {normalized_image}. Proceeding to run tests anyway.")
 
     # Validate the YAML config file
     config_file = Path(args.config)

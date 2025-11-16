@@ -313,11 +313,11 @@ test: ## Run structure tests on built container images
 		config_file=$(TEST_CONFIG_DIR)/$$image_name.yaml; \
 		if [ -f "$$config_file" ]; then \
 			echo "Testing image: $$image_name with config: $$config_file"; \
-			if ! $(DOCKER_CMD) image inspect $$image_name >/dev/null 2>&1; then \
+			if ! $(DOCKER_CMD) image inspect $$image_name:latest >/dev/null 2>&1; then \
 				echo "Docker image '$$image_name' not found. Importing from tar..."; \
-				$(DOCKER_CMD) import "$(DIST_DIR)/$$image_name/$$image_name.tar" "$$image_name"; \
+				$(DOCKER_CMD) import "$(DIST_DIR)/$$image_name/$$image_name.tar" "$$image_name:latest"; \
 			fi; \
-			$(CONTAINER_TEST_SCRIPT) --image $$image_name --config $$config_file; \
+			$(CONTAINER_TEST_SCRIPT) --image $$image_name:latest --config $$config_file; \
 		else \
                 	echo "No test config found for image: $$image_name"; \
             	fi; \
