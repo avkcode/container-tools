@@ -74,7 +74,10 @@ mount_target_fs() {
 umount_target_fs() {
   for mp in "$target/dev/pts" "$target/dev/shm" "$target/dev" "$target/run" "$target/sys" "$target/proc"; do
     if mountpoint -q "$mp"; then
-      run umount "$mp" || run umount -l "$mp" || true
+      if ! umount "$mp"; then
+        warn "Normal umount failed for $mp; trying lazy umount"
+        umount -l "$mp" || warn "Lazy umount also failed for $mp"
+      fi
     fi
   done
 }
@@ -173,7 +176,7 @@ run() {
 
   if ((e != 0)); then
     echo >&2 "Error code: $e, program was interrupted"
-    exit
+    exit "$e"
   fi
 }
 
