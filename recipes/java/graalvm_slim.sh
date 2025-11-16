@@ -120,8 +120,13 @@ graalvm_slim() {
     mkdir -p /tmp/graal
     mv "/tmp/${extract_dir}"/* /tmp/graal
 
+    # Prepare environment for jlink to find libjli.so
+    export JAVA_HOME=/tmp/graal
+    export PATH="$JAVA_HOME/bin:$PATH"
+    export LD_LIBRARY_PATH="$JAVA_HOME/lib:$JAVA_HOME/lib/jli:$JAVA_HOME/lib/server:${LD_LIBRARY_PATH:-}"
+
     # Build slim runtime
-    /tmp/graal/bin/jlink \
+    "$JAVA_HOME/bin/jlink" \
         --add-modules ALL-MODULE-PATH \
         --strip-debug \
         --no-man-pages \
