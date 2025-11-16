@@ -91,6 +91,11 @@ graalvm_slim() {
         apt-get update
         apt-get install --yes --no-install-recommends tar
     fi
+    # jlink uses 'objcopy' when --strip-debug is enabled; ensure it's present
+    if ! command -v objcopy >/dev/null 2>&1; then
+        apt-get update
+        apt-get install --yes --no-install-recommends binutils
+    fi
 
     tmp_tgz="$(mktemp "/tmp/graalvm-${GRAALVM_VERSION}.XXXXXX.tgz")"
     trap 'rm -f "$tmp_tgz"' EXIT
