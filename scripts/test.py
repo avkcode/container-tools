@@ -7,6 +7,35 @@ from pathlib import Path
 # Import common utilities
 from utils import logger, run_command, check_program_installed
 
+def _parse_run_result(result):
+    """Normalize run_command return into (stdout, stderr, rc) with rc as int."""
+    stdout = ""
+    stderr = ""
+    rc = None
+    try:
+        if isinstance(result, tuple):
+            if len(result) == 3:
+                stdout, stderr, rc = result
+            elif len(result) == 2:
+                stdout, rc = result
+                stderr = ""
+            else:
+                rc = 1
+        else:
+            rc = getattr(result, "returncode", None)
+            stdout = getattr(result, "stdout", "")
+            stderr = getattr(result, "stderr", "")
+        if isinstance(rc, str):
+            try:
+                rc = int(rc)
+            except Exception:
+                rc = 0 if rc == "0" else 1
+        if rc is None:
+            rc = 1
+    except Exception:
+        stdout, stderr, rc = "", "", 1
+    return stdout, stderr, rc
+
 def normalize_image_ref(image_id):
     """Return an image reference, adding ':latest' if no explicit tag or digest is present."""
     try:
@@ -27,11 +56,7 @@ def validate_image(image_id):
     """Check if the Docker image exists locally. Falls back to :latest if no tag is specified."""
     try:
         result = run_command(["docker", "inspect", "--type=image", image_id])
-        try:
-            stdout, stderr, rc = result
-        except ValueError:
-            stdout, rc = result
-            stderr = ""
+        stdout, stderr, rc = _parse_run_result(result)
         if rc == 0:
             return True
 
@@ -40,11 +65,7 @@ def validate_image(image_id):
         if normalized != image_id:
             logger.info(f"Image '{image_id}' not found, retrying with default tag: '{normalized}'")
             result = run_command(["docker", "inspect", "--type=image", normalized])
-            try:
-                stdout, stderr, rc = result
-            except ValueError:
-                stdout, rc = result
-                stderr = ""
+            stdout, stderr, rc = _parse_run_result(result)
             if rc == 0:
                 return True
 
@@ -85,11 +106,7 @@ def run_container_test(image_id, config_file, dry_run=False):
             return
 
         result = run_command(test_cmd, dry_run=dry_run)
-        try:
-            stdout, stderr, rc = result
-        except ValueError:
-            stdout, rc = result
-            stderr = ""
+        stdout, stderr, rc = _parse_run_result(result)
 
         # Log the output
         if stdout:
