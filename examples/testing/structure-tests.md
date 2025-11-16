@@ -70,20 +70,20 @@ metadataTest:
 ### 1. Build and load your image
 
 ```bash
-make debian11
-cat dist/debian11/debian11.tar | docker import - debian11:latest
+make debian11-java-slim-gradle
+cat dist/debian11-java-slim-gradle/debian11-java-slim-gradle.tar | docker import - debian11-java-slim-gradle:latest
 ```
 
 ### 2. Run the test using the script
 
 ```bash
-./scripts/test.py --image debian11:latest --config debian11-test.yaml
+./scripts/test.py --image debian11-java-slim-gradle:latest --config test/debian11-java-slim-gradle.yaml
 ```
 
 ### 3. Run tests directly with container-structure-test
 
 ```bash
-container-structure-test test --image debian11:latest --config debian11-test.yaml
+container-structure-test test --image debian11-java-slim-gradle:latest --config test/debian11-java-slim-gradle.yaml
 ```
 
 ## Example Test Configurations
@@ -159,13 +159,13 @@ jobs:
           sudo mv container-structure-test-linux-amd64 /usr/local/bin/container-structure-test
       
       - name: Build container image
-        run: make debian11-java-slim
+        run: make debian11-java-slim-gradle
       
       - name: Import image
-        run: cat dist/debian11-java-slim/debian11-java-slim.tar | docker import - debian11-java-slim:test
+        run: cat dist/debian11-java-slim-gradle/debian11-java-slim-gradle.tar | docker import - debian11-java-slim-gradle:test
       
       - name: Run structure tests
-        run: container-structure-test test --image debian11-java-slim:test --config test/debian11-java-slim.yaml
+        run: container-structure-test test --image debian11-java-slim-gradle:test --config test/debian11-java-slim-gradle.yaml
 ```
 
 ## Troubleshooting

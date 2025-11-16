@@ -26,7 +26,7 @@ This will look for a `.asc` signature file alongside the tarball and verify it.
 If the signature file is in a different location or has a different name:
 
 ```bash
-./scripts/gpg.py --directory dist/debian11-java-slim/debian11-java-slim.tar --verify --sig-file /path/to/signature.asc
+./scripts/gpg.py --directory dist/debian11-java-slim --verify --sig-file /path/to/signature.asc
 ```
 
 ### 3. Import the signer's public key (if needed)

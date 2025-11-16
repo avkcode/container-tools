@@ -14,7 +14,7 @@ This example shows how to create a Debian-based image with custom package select
 Create a new configuration file or modify an existing one in `debian/debootstrap/`:
 
 ```bash
-cp debian/debootstrap/debian11.conf debian/debootstrap/debian11-custom.conf
+cp debian/debootstrap/bullseye debian/debootstrap/bullseye-custom
 ```
 
 Edit the file to include your desired packages:
@@ -34,7 +34,7 @@ DEBOOTSTRAP_INCLUDE="${DEBOOTSTRAP_INCLUDE},vim,git,htop,net-tools"
 Add a new target to the Makefile:
 
 ```makefile
-debian11-custom: debian/debootstrap/debian11-custom.conf
+debian11-custom: debian/debootstrap/bullseye-custom
 	@echo "Building custom Debian 11 image..."
 	@mkdir -p $(DIST)/debian11-custom
 	@TARGET=debian11-custom DIST=$(DIST)/debian11-custom DEBOOTSTRAP_CONF=$< ./debian/mkimage.sh
@@ -64,7 +64,7 @@ which vim git htop
 Here's an example of creating a minimal development environment:
 
 ```bash
-# In debian11-dev.conf
+# In debian/debootstrap/bullseye-dev
 DEBOOTSTRAP_COMPONENTS="main"
 DEBOOTSTRAP_VARIANT="minbase"
 DEBOOTSTRAP_INCLUDE="ca-certificates,curl,locales,procps,apt-transport-https"

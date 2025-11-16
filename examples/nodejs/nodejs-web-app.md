@@ -13,7 +13,7 @@ This example demonstrates how to use Container Tools to deploy NodeJS web applic
 ### 1. Build the NodeJS base image
 
 ```bash
-make debian11-nodejs-23.11.0
+make debian11-nodejs
 ```
 
 This creates a minimal Debian-based image with NodeJS installed.
@@ -21,7 +21,7 @@ This creates a minimal Debian-based image with NodeJS installed.
 ### 2. Load the image into Docker
 
 ```bash
-cat dist/debian11-nodejs-23.11.0/debian11-nodejs-23.11.0.tar | docker import - debian11-nodejs:latest
+cat dist/debian11-nodejs/debian11-nodejs.tar | docker import - debian11-nodejs:latest
 ```
 
 ### 3. Create a Dockerfile for your NodeJS application
