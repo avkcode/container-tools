@@ -7,7 +7,21 @@ GRADLE_VERSION="${GRADLE_VERSION:-7.4.2}"
 GRADLE_SHA="${GRADLE_SHA:-29e49b10984e585d8118b7d0bc452f944e386458df27371b49b4ac1dec4b7fda}"
 GRADLE_URL="${GRADLE_URL:-https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip}"
 
+ensure_tools() {
+    local need_update=0
+    if ! command -v curl >/dev/null 2>&1 && ! command -v wget >/dev/null 2>&1; then
+        apt-get update
+        apt-get install --yes --no-install-recommends ca-certificates curl
+        need_update=1
+    fi
+    if ! command -v unzip >/dev/null 2>&1 && ! command -v bsdtar >/dev/null 2>&1 && ! command -v jar >/dev/null 2>&1; then
+        [[ "$need_update" -eq 1 ]] || apt-get update
+        apt-get install --yes --no-install-recommends unzip
+    fi
+}
+
 install_gradle() {
+    ensure_tools
     # Download Gradle distribution into a temp file inside the chroot
     tmpfile="$(mktemp "/tmp/gradle-${GRADLE_VERSION}.XXXXXX.zip")"
     trap 'rm -f "$tmpfile"' EXIT
@@ -57,8 +71,16 @@ install_gradle() {
     if [[ -d "/opt/gradle-${GRADLE_VERSION}" ]]; then
         mv "/opt/gradle-${GRADLE_VERSION}" /opt/gradle
     fi
-    mkdir -p /usr/local/bin
+    mkdir -p /usr/local/bin /usr/bin
+    chmod +x /opt/gradle/bin/gradle || true
     ln -sf /opt/gradle/bin/gradle /usr/local/bin/gradle
+    ln -sf /opt/gradle/bin/gradle /usr/bin/gradle
+
+    # Fallback wrapper to ensure gradle is on PATH even if symlinks break
+    if [ ! -x /usr/bin/gradle ]; then
+        printf '%s\n' '#!/bin/sh' 'exec /opt/gradle/bin/gradle "$@"' > /usr/bin/gradle
+        chmod 0755 /usr/bin/gradle
+    fi
 
     # Configure environment for login shells
     mkdir -p /etc/profile.d
@@ -70,6 +92,10 @@ export GRADLE_OPTS="-Dorg.gradle.daemon=false -Dorg.gradle.logging.level=info"
 EOF
 
     # Cleanup download
+    # Verify gradle is runnable
+    if ! /opt/gradle/bin/gradle --version >/dev/null 2>&1 && ! /usr/local/bin/gradle --version >/dev/null 2>&1; then
+        echo "WARNING: gradle installed but not runnable at build time" >&2
+    fi
     rm -f "$tmpfile"
 }
 
