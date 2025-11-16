@@ -1,0 +1,15 @@
+schemaVersion: "2.0.0"
+
+metadataTest:
+  entrypoint: []
+  cmd: []
+
+commandTests:
+  - name: "nvidia-ctk is available"
+    command: "nvidia-ctk"
+    args: ["--version"]
+    exitCode: 0
+  - name: "nvidia-container-runtime is available"
+    command: "nvidia-container-runtime"
+    args: ["--version"]
+    exitCode: 0

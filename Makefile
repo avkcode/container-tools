@@ -285,7 +285,7 @@ debian11-cuda-runtime:
 			--keyring=$(DEBIAN_KEYRING) \
 			--variant=$(VARIANT) \
 			--release=$(RELEASE) \
-			--recipes=$(RECIPES_DIR)/gpu/cuda_runtime.sh \
+			--recipes=$(RECIPES_DIR)/gpu/cuda_runtime.sh,$(RECIPES_DIR)/gpu/nvidia_container_tools.sh \
 			$(SECURITY_SCAN_ARG)
 
 
