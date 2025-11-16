@@ -1,0 +1,28 @@
+name: Container Structure Test (Java Slim Gradle)
+
+on:
+  push:
+    paths:
+      - 'Dockerfile'
+      - 'test/debian11-java-slim-gradle.yaml'
+      - '.github/workflows/structure-test.yml'
+  pull_request:
+    paths:
+      - 'Dockerfile'
+      - 'test/debian11-java-slim-gradle.yaml'
+      - '.github/workflows/structure-test.yml'
+
+jobs:
+  structure-test:
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build image (tagged by commit SHA)
+        run: docker build -t cst-${{ github.sha }} -f Dockerfile .
+
+      - name: Run container-structure-test for debian11-java-slim-gradle
+        run: docker run --rm -v "$PWD:/work" -w /work gcr.io/gcp-runtimes/container-structure-test:v1.16.0 test --image cst-${{ github.sha }} --config test/debian11-java-slim-gradle.yaml
