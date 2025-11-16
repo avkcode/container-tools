@@ -109,7 +109,9 @@ graalvm_slim() {
     mkdir -p /tmp
     tar -xzf "$tmp_tgz" -C /tmp
 
-    extract_dir="$(tar -tzf "$tmp_tgz" | head -1 | cut -d/ -f1)"
+    # Avoid SIGPIPE under 'set -o pipefail' by not piping tar output to head
+    tar_list="$(tar -tzf "$tmp_tgz")"
+    extract_dir="$(printf '%s\n' "$tar_list" | head -n 1 | cut -d/ -f1)"
     if [[ -z "$extract_dir" || ! -d "/tmp/${extract_dir}" ]]; then
         echo "ERROR: Could not determine GraalVM extract directory" >&2
         exit 1
