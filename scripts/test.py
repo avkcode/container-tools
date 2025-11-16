@@ -8,11 +8,12 @@ from pathlib import Path
 from utils import logger, run_command, check_program_installed
 
 def _parse_run_result(result):
-    """Normalize run_command return into (stdout, stderr, rc) with rc as int."""
+    """Normalize run_command return into (stdout, stderr, rc) with rc as int (0=success, 1=error)."""
     stdout = ""
     stderr = ""
     rc = None
     try:
+        # Unpack common shapes from utils.run_command
         if isinstance(result, tuple):
             if len(result) == 3:
                 stdout, stderr, rc = result
@@ -25,13 +26,26 @@ def _parse_run_result(result):
             rc = getattr(result, "returncode", None)
             stdout = getattr(result, "stdout", "")
             stderr = getattr(result, "stderr", "")
-        if isinstance(rc, str):
+
+        # Normalize rc to int semantics (0=success)
+        if isinstance(rc, bool):
+            rc = 0 if rc is True else 1
+        elif isinstance(rc, str):
+            s = rc.strip().lower()
             try:
-                rc = int(rc)
+                rc = int(s)
             except Exception:
-                rc = 0 if rc == "0" else 1
+                if s in ("0", "ok", "pass", "passed", "success", "true"):
+                    rc = 0
+                elif s in ("1", "error", "fail", "failed", "failure", "false"):
+                    rc = 1
+                else:
+                    rc = 1
         if rc is None:
             rc = 1
+
+        # Collapse any non-zero to 1 for downstream checks
+        rc = 0 if rc == 0 else 1
     except Exception:
         stdout, stderr, rc = "", "", 1
     return stdout, stderr, rc
