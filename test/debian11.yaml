@@ -2,11 +2,15 @@ schemaVersion: '2.0.0'
 
 commandTests:
   - name: 'bash available'
-    command: "bash --version"
+    command: "bash"
+    args:
+      - "--version"
     exitCode: 0
 
   - name: 'apt-get available'
-    command: "apt-get --version"
+    command: "apt-get"
+    args:
+      - "--version"
     exitCode: 0
 
 fileExistenceTests:
